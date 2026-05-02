@@ -38,7 +38,7 @@
         let todosLosMiembros = [];
 
         async function cargarMiembros() {
-            const res = await fetch('https://script.google.com/macros/s/AKfycbw0f_aAOAYpeL1KYlGNNHhhFkLOtGrmfGpnCLIVX6rqOZWlRbQjZFUwX0G9Lby0v-L9PQ/exec?action=obtenerMiembros');
+            const res = await fetch('https://script.google.com/macros/s/AKfycbyRAEbz2KMc6lvUX-SX085Autf4OGwRBjP-gVgVSxgGZvL9nn1x3zj0FJxD-iNX-XZyIw/exec?action=obtenerMiembros');
             todosLosMiembros = await res.json();
             renderizar(todosLosMiembros);
         }
