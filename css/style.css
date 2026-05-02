@@ -78,3 +78,66 @@ button:active {
     background-color: var(--rojo-apa);
     transform: scale(0.98);
 }
+
+/* Ajustes para el contenedor principal */
+.app-container {
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.header {
+    background: var(--azul-apa);
+    color: white;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.welcome-section {
+    padding: 25px 20px 10px 20px;
+    text-align: left;
+}
+
+.welcome-msg {
+    margin: 0;
+    font-size: 1.4rem;
+    color: var(--azul-apa);
+    line-height: 1.2;
+}
+
+/* Menú en cuadrícula responsiva */
+.menu-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Dos columnas iguales */
+    gap: 15px;
+    padding: 20px;
+}
+
+.menu-card {
+    background: white;
+    padding: 20px 10px;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    color: var(--azul-apa);
+    font-size: 0.9rem;
+    aspect-ratio: 1 / 1; /* Hace que sean cuadrados perfectos */
+}
+
+.menu-card span {
+    font-size: 2.2rem;
+    margin-bottom: 10px;
+}

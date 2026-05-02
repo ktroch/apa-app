@@ -2,58 +2,71 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>APA Zurich - Inicio</title>
     <link rel="stylesheet" href="css/style.css">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <style>
-        .header { background: var(--azul-apa); color: white; padding: 15px; text-align: left; display: flex; align-items: center; justify-content: space-between; }
-        .welcome-msg { margin: 20px; font-size: 1.2rem; color: var(--azul-apa); font-weight: bold; }
-        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 20px; }
-        .menu-card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); text-align: center; cursor: pointer; transition: transform 0.2s; }
-        .menu-card:active { transform: scale(0.95); background-color: #f0f0f0; }
-        .menu-card i { font-size: 2rem; display: block; margin-bottom: 10px; }
-        .admin-only { border: 2px solid var(--rojo-apa); } /* Marca visual para admin */
-    </style>
 </head>
 <body>
-    <div class="header">
-        <span>APA Zurich</span>
-        <button onclick="logout()" style="width: auto; padding: 5px 10px; font-size: 0.8rem; background: var(--rojo-apa);">Salir</button>
-    </div>
+    <div class="app-container">
+        <!-- Cabecera fija -->
+        <div class="header">
+            <span style="font-weight: bold; letter-spacing: 1px;">APA ZÜRICH</span>
+            <button onclick="logout()" style="width: auto; margin: 0; padding: 6px 12px; background: var(--rojo-apa); font-size: 0.75rem;">SALIR</button>
+        </div>
 
-    <div class="welcome-msg" id="user-welcome">Hola, Bienvenido</div>
+        <!-- Sección de Bienvenida -->
+        <div class="welcome-section">
+            <p style="color: var(--gris-texto); font-size: 0.9rem; margin-bottom: 5px;">Bienvenido/a,</p>
+            <h1 class="welcome-msg" id="user-welcome">Cargando...</h1>
+        </div>
 
-    <div class="menu-grid" id="main-menu">
-        <!-- Opciones para todos -->
-        <div class="menu-card" onclick="navegar('registro')">📝<br>Registro</div>
-        <div class="menu-card" onclick="navegar('asistencia')">📅<br>Asistencia</div>
-        <div class="menu-card" onclick="navegar('inventario')">📦<br>Inventario</div>
-        <div class="menu-card" onclick="navegar('entregas')">🎁<br>Entregar Kit</div>
-        
-        <!-- Opciones solo Admin (se mostrarán dinámicamente) -->
-        <div id="admin-section" style="display: contents;">
-            <div class="menu-card admin-only" onclick="navegar('usuarios')">👥<br>Gestión Usuarios</div>
-            <div class="menu-card admin-only" onclick="navegar('reportes')">📊<br>Reportes</div>
+        <!-- Cuadrícula de Menú -->
+        <div class="menu-grid">
+            <div class="menu-card" onclick="navegar('registro')">
+                <span>📝</span> Registro
+            </div>
+            <div class="menu-card" onclick="navegar('asistencia')">
+                <span>📅</span> Asistencia
+            </div>
+            <div class="menu-card" onclick="navegar('inventario')">
+                <span>📦</span> Inventario
+            </div>
+            <div class="menu-card" onclick="navegar('entregas')">
+                <span>🎁</span> Entregar Kit
+            </div>
+            
+            <!-- Bloque dinámico para Admin -->
+            <div id="admin-section" style="display: contents;">
+                <div class="menu-card admin-only" onclick="navegar('usuarios')">
+                    <span>👥</span> Usuarios
+                </div>
+                <div class="menu-card admin-only" onclick="navegar('reportes')">
+                    <span>📊</span> Reportes
+                </div>
+            </div>
         </div>
     </div>
 
     <script src="js/app.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // Recuperar datos de sesión
             const userName = sessionStorage.getItem('user_name') || "Usuario";
             const userRole = sessionStorage.getItem('user_role');
-            document.getElementById('user-welcome').innerText = `Hola, ${userName}`;
+            
+            document.getElementById('user-welcome').innerText = userName;
 
-            // Si no es Admin, ocultamos las funciones restringidas
+            // Lógica de visibilidad por Rol
             if (userRole !== 'Admin') {
-                document.getElementById('admin-section').style.display = 'none';
+                const adminCards = document.querySelectorAll('.admin-only');
+                adminCards.forEach(card => card.style.display = 'none');
             }
         });
 
         function navegar(destino) {
-            alert("Navegando a: " + destino);
-            // Próximamente: window.location.href = destino + '.html';
+            // Aquí definiremos las rutas más adelante
+            console.log("Navegando a " + destino);
         }
 
         function logout() {
