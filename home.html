@@ -65,8 +65,11 @@
         });
 
         function navegar(destino) {
-            // Aquí definiremos las rutas más adelante
-            console.log("Navegando a " + destino);
+            if (destino === 'registro') {
+                window.location.href = 'registro.html';
+            } else {
+                alert("Módulo " + destino + " en construcción");
+            }
         }
 
         function logout() {
