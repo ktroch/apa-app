@@ -8,100 +8,118 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
+        :root {
+            --azul-apa: #1a3a63; /* Asegurando el tono azul */
+        }
+
+        body { margin: 0; font-family: sans-serif; background-color: #f5f5f5; }
+
         .header-directorio {
             background: var(--azul-apa);
             color: white;
             padding: 15px;
             display: flex;
             align-items: center;
-            justify-content: center; /* Centra el título */
             position: relative;
+            height: 30px; /* Altura fija para control */
         }
+
         .back-btn-dir {
             position: absolute;
-            left: 15px;
+            left: 10px;
             background: none;
             border: none;
             color: white;
-            font-size: 1.5rem;
+            font-size: 1.8rem;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .title-center {
+            width: 100%;
+            text-align: center;
+            margin: 0;
+            font-size: 1.2rem;
+            letter-spacing: 2px;
+            font-weight: bold;
         }
         
-        /* Contenedor de búsqueda avanzada */
-        /* Contenedor principal de la búsqueda */
         .search-wrapper {
-            padding: 15px;
+            padding: 20px 15px;
             display: flex;
-            align-items: center; /* Alineación vertical perfecta */
-            gap: 10px; /* Espacio entre la barra y el botón */
+            align-items: center;
+            gap: 10px;
         }
 
         .input-group {
-            flex-grow: 1; /* La barra ocupa el espacio sobrante */
+            flex: 1;
         }
 
         .input-group input {
             width: 100%;
-            padding: 12px 15px;
+            padding: 0 15px;
             border-radius: 10px;
-            border: 1px solid #ddd;
+            border: 1px solid #ccc;
             font-size: 16px;
             box-sizing: border-box;
-            height: 45px; /* Altura fija para alinear con el botón */
+            height: 50px; /* Altura idéntica al botón */
         }
 
-        /* Botón de Escaneo al lado de la barra */
         .qr-btn {
             background-color: var(--azul-apa);
             color: white;
             border: none;
             border-radius: 10px;
-            height: 45px; /* Misma altura que el input */
-            padding: 0 15px;
+            height: 50px; /* Altura idéntica al input */
+            width: 90px; /* Ancho fijo para el botón QR */
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            font-weight: bold;
-            font-size: 14px;
-            white-space: nowrap; /* Evita que el texto se rompa */
+            gap: 8px;
         }
 
         .qr-btn svg {
-            width: 20px;
-            height: 20px;
+            width: 22px;
+            height: 22px;
             fill: white;
-            margin-right: 8px; /* Espacio entre icono y texto */
+        }
+
+        .qr-btn span {
+            font-weight: bold;
+            font-size: 14px;
         }
 
         /* Lista de Miembros */
         .member-list { padding: 0 15px 20px 15px; }
         .member-card { 
             background: white; 
-            margin-bottom: 12px; 
-            padding: 12px; 
+            margin-bottom: 15px; 
+            padding: 15px; 
             border-radius: 15px; 
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05); 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08); 
             display: flex; 
             align-items: center; 
             gap: 15px; 
         }
-        .member-photo { width: 55px; height: 55px; border-radius: 50%; object-fit: cover; background: #eee; }
+        .member-photo { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid #eee; }
         .member-info { flex-grow: 1; }
-        .member-name { font-weight: bold; font-size: 1rem; color: #333; }
-        .member-id { font-size: 0.75rem; color: #777; font-family: monospace; }
-        .status-pill { font-size: 0.7rem; padding: 4px 10px; border-radius: 20px; font-weight: bold; }
+        .member-name { font-weight: bold; font-size: 1.05rem; color: #222; margin-bottom: 4px; }
+        .member-id { font-size: 0.8rem; color: #666; font-family: monospace; }
+        .status-pill { font-size: 0.75rem; padding: 5px 12px; border-radius: 20px; font-weight: bold; }
         .activo { background: #e6f4ea; color: #1e7e34; }
         .inactivo { background: #fce8e6; color: #d93025; }
         
-        #reader { width: 100%; max-width: 350px; margin: 10px auto; display: none; border-radius: 10px; overflow: hidden; }
+        #reader { width: 90%; margin: 10px auto; display: none; border-radius: 15px; overflow: hidden; border: 2px solid var(--azul-apa); }
     </style>
 </head>
 <body>
 
     <div class="header-directorio">
-        <button class="back-btn-dir" onclick="window.location.href='home.html'">⬅</button>
-        <h2 style="margin: 0; font-size: 1.1rem; letter-spacing: 1px;">DIRECTORIO</h2>
+        <button class="back-btn-dir" onclick="window.location.href='home.html'">‹</button>
+        <h2 class="title-center">DIRECTORIO</h2>
     </div>
 
     <div id="reader"></div>
@@ -111,22 +129,21 @@
             <input type="text" id="buscador" placeholder="Buscar por nombre o ID..." oninput="filtrar()">
         </div>
         
-        <!-- Botón alineado a la derecha con Icono + Texto -->
         <button class="qr-btn" onclick="toggleQR()">
             <svg viewBox="0 0 24 24">
                 <path d="M4 4h6V2H2v8h2V4zm10-2v2h6v6h2V2h-8zM2 14v8h8v-2H4v-6H2zm20 0h-2v6h-6v2h8v-8zM7 7h4v4H7V7zm6 0h4v4h-4V7zm-6 6h4v4H7v-4zm6 0h4v4h-4v-4z"/>
             </svg>
-            ESCANEAR
+            <span>QR</span>
         </button>
     </div>
 
     <div class="member-list" id="lista-miembros">
-        <!-- Cargando... -->
+        <!-- Los datos se cargan aquí -->
     </div>
 
     <script>
         let todosLosMiembros = [];
-        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyRAEbz2KMc6lvUX-SX085Autf4OGwRBjP-gVgVSxgGZvL9nn1x3zj0FJxD-iNX-XZyIw/exec'; // Asegúrate de que sea la de tu última implementación
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyRAEbz2KMc6lvUX-SX085Autf4OGwRBjP-gVgVSxgGZvL9nn1x3zj0FJxD-iNX-XZyIw/exec';
 
         async function cargarMiembros() {
             try {
@@ -134,14 +151,14 @@
                 todosLosMiembros = await res.json();
                 renderizar(todosLosMiembros);
             } catch (e) {
-                document.getElementById('lista-miembros').innerHTML = "Error al cargar datos.";
+                document.getElementById('lista-miembros').innerHTML = "<p style='text-align:center;'>Error al conectar con la base de datos.</p>";
             }
         }
 
         function renderizar(lista) {
             const contenedor = document.getElementById('lista-miembros');
             if(lista.length === 0) {
-                contenedor.innerHTML = "<p style='text-align:center; color:#999;'>No se encontraron miembros.</p>";
+                contenedor.innerHTML = "<p style='text-align:center; color:#999; margin-top:20px;'>No hay resultados.</p>";
                 return;
             }
             contenedor.innerHTML = lista.map(m => `
@@ -182,15 +199,14 @@
                         html5QrCode.stop();
                         readerDiv.style.display = 'none';
                     }
-                ).catch(err => alert("Error cámara: " + err));
+                ).catch(err => console.error(err));
             }
         }
 
         function verDetalle(id) {
-            // Guardamos el ID para usarlo en la siguiente pantalla
             localStorage.setItem('selectedMemberId', id);
-            alert("Abriendo detalle de: " + id); 
-            // window.location.href = 'detalle.html'; // Lo crearemos a continuación
+            alert("Accediendo al perfil de: " + id);
+            // window.location.href = 'detalle.html'; 
         }
 
         window.onload = cargarMiembros;
