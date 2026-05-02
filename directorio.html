@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Directorio APA</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Librería para QR -->
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <style>
+        .search-container { padding: 15px; display: flex; gap: 10px; }
+        .member-card { background: white; margin: 10px; padding: 15px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 15px; }
+        .member-photo { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; background: #eee; }
+        .status-badge { font-size: 0.7rem; padding: 2px 8px; border-radius: 10px; }
+        .activo { background: #d4edda; color: #155724; }
+        .inactivo { background: #f8d7da; color: #721c24; }
+        #reader { width: 100%; max-width: 300px; margin: 0 auto; display: none; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button onclick="window.location.href='home.html'" class="back-btn">⬅</button>
+        <span>DIRECTORIO</span>
+        <button onclick="toggleQR()" style="width:auto; background:none;">📷 QR</button>
+    </div>
+
+    <div id="reader"></div>
+
+    <div class="search-container">
+        <input type="text" id="buscador" placeholder="Buscar por nombre o ID..." oninput="filtrar()">
+    </div>
+
+    <div id="lista-miembros">
+        <!-- Los miembros aparecerán aquí -->
+    </div>
+
+    <script>
+        let todosLosMiembros = [];
+
+        async function cargarMiembros() {
+            const res = await fetch('https://script.google.com/macros/s/AKfycbw0f_aAOAYpeL1KYlGNNHhhFkLOtGrmfGpnCLIVX6rqOZWlRbQjZFUwX0G9Lby0v-L9PQ/exec?action=obtenerMiembros');
+            todosLosMiembros = await res.json();
+            renderizar(todosLosMiembros);
+        }
+
+        function renderizar(lista) {
+            const contenedor = document.getElementById('lista-miembros');
+            contenedor.innerHTML = lista.map(m => `
+                <div class="member-card" onclick="verDetalle('${m.id}')">
+                    <img src="${m.foto || 'https://via.placeholder.com/60'}" class="member-photo">
+                    <div style="flex-grow:1">
+                        <div style="font-weight:bold">${m.nombre} ${m.apellido}</div>
+                        <div style="font-size:0.8rem; color:#666">${m.id}</div>
+                    </div>
+                    <span class="status-badge ${m.estado.toLowerCase()}">${m.estado}</span>
+                </div>
+            `).join('');
+        }
+
+        // Lógica de Escáner QR
+        function toggleQR() {
+            const reader = document.getElementById('reader');
+            if (reader.style.display === 'block') {
+                reader.style.display = 'none';
+            } else {
+                reader.style.display = 'block';
+                const html5QrCode = new Html5Qrcode("reader");
+                html5QrCode.start(
+                    { facingMode: "environment" }, 
+                    { fps: 10, qrbox: 250 },
+                    (decodedText) => {
+                        document.getElementById('buscador').value = decodedText;
+                        filtrar();
+                        html5QrCode.stop();
+                        reader.style.display = 'none';
+                    }
+                );
+            }
+        }
+
+        function filtrar() {
+            const busqueda = document.getElementById('buscador').value.toLowerCase();
+            const filtrados = todosLosMiembros.filter(m => 
+                m.nombre.toLowerCase().includes(busqueda) || 
+                m.id.toLowerCase().includes(busqueda)
+            );
+            renderizar(filtrados);
+        }
+
+        window.onload = cargarMiembros;
+    </script>
+</body>
+</html>
