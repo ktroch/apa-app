@@ -2,89 +2,183 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Directorio APA</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>APA Zurich - Directorio</title>
     <link rel="stylesheet" href="css/style.css">
-    <!-- Librería para QR -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
-        .search-container { padding: 15px; display: flex; gap: 10px; }
-        .member-card { background: white; margin: 10px; padding: 15px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 15px; }
-        .member-photo { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; background: #eee; }
-        .status-badge { font-size: 0.7rem; padding: 2px 8px; border-radius: 10px; }
-        .activo { background: #d4edda; color: #155724; }
-        .inactivo { background: #f8d7da; color: #721c24; }
-        #reader { width: 100%; max-width: 300px; margin: 0 auto; display: none; }
+        .header-directorio {
+            background: var(--azul-apa);
+            color: white;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center; /* Centra el título */
+            position: relative;
+        }
+        .back-btn-dir {
+            position: absolute;
+            left: 15px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        /* Contenedor de búsqueda avanzada */
+        .search-wrapper {
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .input-group {
+            position: relative;
+            flex-grow: 1;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 12px 45px 12px 15px; /* Espacio para el icono a la derecha */
+            border-radius: 10px;
+            border: 1px solid #ddd;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        .qr-scan-icon {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+            display: flex;
+            align-items: center;
+        }
+        .qr-scan-icon svg {
+            width: 24px;
+            height: 24px;
+            fill: var(--azul-apa);
+        }
+
+        /* Lista de Miembros */
+        .member-list { padding: 0 15px 20px 15px; }
+        .member-card { 
+            background: white; 
+            margin-bottom: 12px; 
+            padding: 12px; 
+            border-radius: 15px; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05); 
+            display: flex; 
+            align-items: center; 
+            gap: 15px; 
+        }
+        .member-photo { width: 55px; height: 55px; border-radius: 50%; object-fit: cover; background: #eee; }
+        .member-info { flex-grow: 1; }
+        .member-name { font-weight: bold; font-size: 1rem; color: #333; }
+        .member-id { font-size: 0.75rem; color: #777; font-family: monospace; }
+        .status-pill { font-size: 0.7rem; padding: 4px 10px; border-radius: 20px; font-weight: bold; }
+        .activo { background: #e6f4ea; color: #1e7e34; }
+        .inactivo { background: #fce8e6; color: #d93025; }
+        
+        #reader { width: 100%; max-width: 350px; margin: 10px auto; display: none; border-radius: 10px; overflow: hidden; }
     </style>
 </head>
 <body>
-    <div class="header">
-        <button onclick="window.location.href='home.html'" class="back-btn">⬅</button>
-        <span>DIRECTORIO</span>
-        <button onclick="toggleQR()" style="width:auto; background:none;">📷 QR</button>
+
+    <div class="header-directorio">
+        <button class="back-btn-dir" onclick="window.location.href='home.html'">⬅</button>
+        <h2 style="margin: 0; font-size: 1.1rem; letter-spacing: 1px;">DIRECTORIO</h2>
     </div>
 
     <div id="reader"></div>
 
-    <div class="search-container">
-        <input type="text" id="buscador" placeholder="Buscar por nombre o ID..." oninput="filtrar()">
+    <div class="search-wrapper">
+        <div class="input-group">
+            <input type="text" id="buscador" placeholder="Buscar por nombre o ID..." oninput="filtrar()">
+            <button class="qr-scan-icon" onclick="toggleQR()">
+                <!-- Icono SVG que imita el escáner de la imagen -->
+                <svg viewBox="0 0 24 24">
+                    <path d="M4 4h6V2H2v8h2V4zm10-2v2h6v6h2V2h-8zM2 14v8h8v-2H4v-6H2zm20 0h-2v6h-6v2h8v-8zM7 7h4v4H7V7zm6 0h4v4h-4V7zm-6 6h4v4H7v-4zm6 0h4v4h-4v-4z"/>
+                </svg>
+            </button>
+        </div>
     </div>
 
-    <div id="lista-miembros">
-        <!-- Los miembros aparecerán aquí -->
+    <div class="member-list" id="lista-miembros">
+        <!-- Cargando... -->
     </div>
 
     <script>
         let todosLosMiembros = [];
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyRAEbz2KMc6lvUX-SX085Autf4OGwRBjP-gVgVSxgGZvL9nn1x3zj0FJxD-iNX-XZyIw/exec'; // Asegúrate de que sea la de tu última implementación
 
         async function cargarMiembros() {
-            const res = await fetch('https://script.google.com/macros/s/AKfycbyRAEbz2KMc6lvUX-SX085Autf4OGwRBjP-gVgVSxgGZvL9nn1x3zj0FJxD-iNX-XZyIw/exec?action=obtenerMiembros');
-            todosLosMiembros = await res.json();
-            renderizar(todosLosMiembros);
+            try {
+                const res = await fetch(`${WEB_APP_URL}?action=obtenerMiembros`);
+                todosLosMiembros = await res.json();
+                renderizar(todosLosMiembros);
+            } catch (e) {
+                document.getElementById('lista-miembros').innerHTML = "Error al cargar datos.";
+            }
         }
 
         function renderizar(lista) {
             const contenedor = document.getElementById('lista-miembros');
+            if(lista.length === 0) {
+                contenedor.innerHTML = "<p style='text-align:center; color:#999;'>No se encontraron miembros.</p>";
+                return;
+            }
             contenedor.innerHTML = lista.map(m => `
                 <div class="member-card" onclick="verDetalle('${m.id}')">
                     <img src="${m.foto || 'https://via.placeholder.com/60'}" class="member-photo">
-                    <div style="flex-grow:1">
-                        <div style="font-weight:bold">${m.nombre} ${m.apellido}</div>
-                        <div style="font-size:0.8rem; color:#666">${m.id}</div>
+                    <div class="member-info">
+                        <div class="member-name">${m.nombre} ${m.apellido}</div>
+                        <div class="member-id">${m.id}</div>
                     </div>
-                    <span class="status-badge ${m.estado.toLowerCase()}">${m.estado}</span>
+                    <span class="status-pill ${m.estado.toLowerCase()}">${m.estado}</span>
                 </div>
             `).join('');
-        }
-
-        // Lógica de Escáner QR
-        function toggleQR() {
-            const reader = document.getElementById('reader');
-            if (reader.style.display === 'block') {
-                reader.style.display = 'none';
-            } else {
-                reader.style.display = 'block';
-                const html5QrCode = new Html5Qrcode("reader");
-                html5QrCode.start(
-                    { facingMode: "environment" }, 
-                    { fps: 10, qrbox: 250 },
-                    (decodedText) => {
-                        document.getElementById('buscador').value = decodedText;
-                        filtrar();
-                        html5QrCode.stop();
-                        reader.style.display = 'none';
-                    }
-                );
-            }
         }
 
         function filtrar() {
             const busqueda = document.getElementById('buscador').value.toLowerCase();
             const filtrados = todosLosMiembros.filter(m => 
                 m.nombre.toLowerCase().includes(busqueda) || 
+                m.apellido.toLowerCase().includes(busqueda) ||
                 m.id.toLowerCase().includes(busqueda)
             );
             renderizar(filtrados);
+        }
+
+        function toggleQR() {
+            const readerDiv = document.getElementById('reader');
+            if (readerDiv.style.display === 'block') {
+                readerDiv.style.display = 'none';
+            } else {
+                readerDiv.style.display = 'block';
+                const html5QrCode = new Html5Qrcode("reader");
+                html5QrCode.start(
+                    { facingMode: "environment" }, 
+                    { fps: 15, qrbox: { width: 250, height: 250 } },
+                    (decodedText) => {
+                        document.getElementById('buscador').value = decodedText;
+                        filtrar();
+                        html5QrCode.stop();
+                        readerDiv.style.display = 'none';
+                    }
+                ).catch(err => alert("Error cámara: " + err));
+            }
+        }
+
+        function verDetalle(id) {
+            // Guardamos el ID para usarlo en la siguiente pantalla
+            localStorage.setItem('selectedMemberId', id);
+            alert("Abriendo detalle de: " + id); 
+            // window.location.href = 'detalle.html'; // Lo crearemos a continuación
         }
 
         window.onload = cargarMiembros;
