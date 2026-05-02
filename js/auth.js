@@ -1,4 +1,4 @@
-const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyQWojBJQUSQgWf-PeRF2O-NNEyTQ5qzTuYojEmQtU7GOwxV92yYFEakZUYHIc-ZPyBLQ/exec'; // La que termina en /exec
+const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbz_UDsnxN-9kGdPbVMTsuRqbkLIixP7M7HwC31L4O5G2XvWyU6-wfrH8QO9Em2rIEh1Vw/exec'; // La que termina en /exec
 
 async function intentarLogin() {
     const user = document.getElementById('user').value;
