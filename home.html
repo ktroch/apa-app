@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APA Zurich - Inicio</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        .header { background: var(--azul-apa); color: white; padding: 15px; text-align: left; display: flex; align-items: center; justify-content: space-between; }
+        .welcome-msg { margin: 20px; font-size: 1.2rem; color: var(--azul-apa); font-weight: bold; }
+        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 20px; }
+        .menu-card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); text-align: center; cursor: pointer; transition: transform 0.2s; }
+        .menu-card:active { transform: scale(0.95); background-color: #f0f0f0; }
+        .menu-card i { font-size: 2rem; display: block; margin-bottom: 10px; }
+        .admin-only { border: 2px solid var(--rojo-apa); } /* Marca visual para admin */
+    </style>
+</head>
+<body>
+    <div class="header">
+        <span>APA Zurich</span>
+        <button onclick="logout()" style="width: auto; padding: 5px 10px; font-size: 0.8rem; background: var(--rojo-apa);">Salir</button>
+    </div>
+
+    <div class="welcome-msg" id="user-welcome">Hola, Bienvenido</div>
+
+    <div class="menu-grid" id="main-menu">
+        <!-- Opciones para todos -->
+        <div class="menu-card" onclick="navegar('registro')">📝<br>Registro</div>
+        <div class="menu-card" onclick="navegar('asistencia')">📅<br>Asistencia</div>
+        <div class="menu-card" onclick="navegar('inventario')">📦<br>Inventario</div>
+        <div class="menu-card" onclick="navegar('entregas')">🎁<br>Entregar Kit</div>
+        
+        <!-- Opciones solo Admin (se mostrarán dinámicamente) -->
+        <div id="admin-section" style="display: contents;">
+            <div class="menu-card admin-only" onclick="navegar('usuarios')">👥<br>Gestión Usuarios</div>
+            <div class="menu-card admin-only" onclick="navegar('reportes')">📊<br>Reportes</div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const userName = sessionStorage.getItem('user_name') || "Usuario";
+            const userRole = sessionStorage.getItem('user_role');
+            document.getElementById('user-welcome').innerText = `Hola, ${userName}`;
+
+            // Si no es Admin, ocultamos las funciones restringidas
+            if (userRole !== 'Admin') {
+                document.getElementById('admin-section').style.display = 'none';
+            }
+        });
+
+        function navegar(destino) {
+            alert("Navegando a: " + destino);
+            // Próximamente: window.location.href = destino + '.html';
+        }
+
+        function logout() {
+            sessionStorage.clear();
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>

@@ -62,7 +62,7 @@ async function verificarResultado(user, pass) {
 
             // ¡Éxito! Redirigir a la pantalla principal (que crearemos luego)
             alert("¡Bienvenido/a " + data.nombre + "!");
-            // window.location.href = 'home.html'; 
+            window.location.href = 'home.html'; 
         } else {
             errorMsg.style.display = 'block';
             loginBtn.disabled = false;
