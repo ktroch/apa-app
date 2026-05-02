@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APA Zurich - Acceso</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body { font-family: sans-serif; background-color: #f4f4f4; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .login-container { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 80%; max-width: 300px; text-align: center; }
+        input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        button { width: 100%; padding: 10px; background-color: #0088cc; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background-color: #0077b3; }
+        .error { color: red; font-size: 0.8em; display: none; }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h2>APA Zurich</h2>
+        <input type="text" id="user" placeholder="Usuario">
+        <input type="password" id="pass" placeholder="Contraseña">
+        <p id="error-msg" class="error">Usuario o clave incorrectos</p>
+        <button onclick="intentarLogin()">Entrar</button>
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand(); // Abre la app a pantalla completa
+
+        async function intentarLogin() {
+            const user = document.getElementById('user').value;
+            const pass = document.getElementById('pass').value;
+            const errorMsg = document.getElementById('error-msg');
+
+            // Aquí conectaremos con tu URL de Google en el siguiente paso
+            console.log("Intentando entrar con:", user);
+            
+            // Por ahora, simularemos un aviso
+            tg.MainButton.setText("VALIDANDO...").show();
+        }
+    </script>
+</body>
+</html>
