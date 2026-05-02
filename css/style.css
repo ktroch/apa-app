@@ -141,3 +141,34 @@ button:active {
     font-size: 2.2rem;
     margin-bottom: 10px;
 }
+
+/* Asegura que en las pantallas de registro e inicio el contenido empiece arriba */
+body {
+    display: block; /* Cambiamos de flex a block para que el flujo sea natural */
+    overflow-x: hidden;
+}
+
+.app-container, .form-container {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Ajuste específico para la cabecera de registro */
+.header-registro {
+    background: var(--azul-apa);
+    color: white;
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.back-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0;
+    margin: 0;
+}

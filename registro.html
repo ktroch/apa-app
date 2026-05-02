@@ -7,59 +7,82 @@
     <link rel="stylesheet" href="css/style.css">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        .form-container { padding: 20px; display: flex; flex-direction: column; gap: 15px; }
-        .photo-box { width: 100%; height: 200px; border: 2px dashed var(--azul-apa); border-radius: 10px; display: flex; justify-content: center; align-items: center; overflow: hidden; position: relative; background: #eee; }
+        /* Estilos rápidos para forzar el orden vertical */
+        .form-body {
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .photo-box { 
+            width: 100%; 
+            height: 180px; 
+            border: 2px dashed var(--azul-apa); 
+            border-radius: 10px; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            background: #f9f9f9;
+            overflow: hidden;
+        }
         .photo-box img { width: 100%; height: 100%; object-fit: cover; }
-        .photo-box span { color: var(--azul-apa); font-size: 0.9rem; text-align: center; }
-        label { font-weight: bold; color: var(--azul-apa); font-size: 0.9rem; margin-bottom: -10px; }
-        select { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ddd; font-size: 16px; }
+        label { display: block; margin-top: 5px; }
     </style>
 </head>
 <body>
-    <div class="header">
-        <button onclick="window.location.href='home.html'" style="width: auto; background: none; font-size: 1.2rem;">⬅️</button>
-        <span style="font-weight: bold;">NUEVO REGISTRO</span>
-        <div style="width: 40px;"></div> <!-- Espaciador -->
+
+    <!-- Cabecera Real -->
+    <div class="header-registro">
+        <button class="back-btn" onclick="window.location.href='home.html'">⬅</button>
+        <h2 style="margin: 0; font-size: 1.2rem;">NUEVO REGISTRO</h2>
     </div>
 
-    <div class="form-container">
-        <!-- Captura de Foto -->
-        <label>Fotografía del Miembro</label>
+    <div class="form-body">
+        <!-- Foto -->
+        <label>Fotografía</label>
         <div class="photo-box" onclick="document.getElementById('fileInput').click()">
-            <span id="photo-placeholder">Pulsar para tomar foto 📸</span>
+            <span id="photo-placeholder">📸 Tocar para capturar</span>
             <img id="photo-preview" style="display:none;">
         </div>
         <input type="file" id="fileInput" accept="image/*" capture="camera" style="display:none;" onchange="previewPhoto(this)">
 
-        <!-- Datos Personales -->
-        <label>Nombre(s)</label>
-        <input type="text" id="nombre" placeholder="Ej: Juan">
-        
-        <label>Apellido(s)</label>
-        <input type="text" id="apellido" placeholder="Ej: Pérez">
+        <!-- Inputs -->
+        <div>
+            <label>Nombre(s)</label>
+            <input type="text" id="nombre" placeholder="Ej: Juan">
+        </div>
 
-        <label>Rol en la Asociación</label>
-        <select id="rol">
-            <option value="Miembro">Miembro (Beneficiario)</option>
-            <option value="Docente">Docente</option>
-            <option value="Colaborador">Colaborador / Voluntario</option>
-        </select>
+        <div>
+            <label>Apellido(s)</label>
+            <input type="text" id="apellido" placeholder="Ej: Pérez">
+        </div>
 
-        <label>Teléfono</label>
-        <input type="tel" id="telefono" placeholder="+41 XX XXX XX XX">
+        <div>
+            <label>Rol</label>
+            <select id="rol" style="width:100%; padding:10px; border-radius:8px;">
+                <option value="Miembro">Miembro</option>
+                <option value="Docente">Docente</option>
+                <option value="Colaborador">Colaborador</option>
+            </select>
+        </div>
 
-        <label>Tipo de Documento</label>
-        <select id="tipo_doc">
-            <option value="ID Suizo">ID Suizo</option>
-            <option value="Pasaporte">Pasaporte</option>
-            <option value="Permiso de Residencia">Permiso de Residencia</option>
-            <option value="Otro">Otro</option>
-        </select>
+        <div>
+            <label>Teléfono</label>
+            <input type="tel" id="telefono" placeholder="+41...">
+        </div>
 
-        <label>Número de Documento</label>
-        <input type="text" id="num_doc" placeholder="Número de identificación">
+        <div>
+            <label>Documento</label>
+            <select id="tipo_doc" style="width:100%; padding:10px; border-radius:8px;">
+                <option value="ID">ID Suizo</option>
+                <option value="Pasaporte">Pasaporte</option>
+                <option value="Otro">Otro</option>
+            </select>
+        </div>
 
-        <button id="save-btn" onclick="guardarRegistro()">GUARDAR MIEMBRO</button>
+        <input type="text" id="num_doc" placeholder="Número de documento">
+
+        <button id="save-btn" onclick="guardarRegistro()" style="margin-top:20px;">GUARDAR REGISTRO</button>
     </div>
 
     <script src="js/app.js"></script>
@@ -70,36 +93,20 @@
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    document.getElementById('photo-preview').src = e.target.result;
-                    document.getElementById('photo-preview').style.display = 'block';
+                    const img = document.getElementById('photo-preview');
+                    img.src = e.target.result;
+                    img.style.display = 'block';
                     document.getElementById('photo-placeholder').style.display = 'none';
-                    photoBase64 = e.target.result; // Guardamos la imagen en base64
+                    photoBase64 = e.target.result;
                 }
                 reader.readAsDataURL(input.files[0]);
             }
         }
 
-        async function guardarRegistro() {
-            const btn = document.getElementById('save-btn');
-            btn.disabled = true;
-            btn.innerText = "PROCESANDO...";
-
-            const datos = {
-                action: "registrarPersona",
-                nombre: document.getElementById('nombre').value,
-                apellido: document.getElementById('apellido').value,
-                rol: document.getElementById('rol').value,
-                telefono: document.getElementById('telefono').value,
-                tipo_doc: document.getElementById('tipo_doc').value,
-                num_doc: document.getElementById('num_doc').value,
-                foto: photoBase64 // Enviamos la imagen
-            };
-
-            // Aquí llamaremos a tu Google Script en el siguiente paso
-            console.log("Datos a enviar:", datos);
-            alert("Listo para conectar con el servidor");
-            btn.disabled = false;
-            btn.innerText = "GUARDAR MIEMBRO";
+        function guardarRegistro() {
+            // Por ahora solo log para probar el diseño
+            console.log("Guardando...");
+            alert("¡Diseño corregido! Listo para enviar.");
         }
     </script>
 </body>
