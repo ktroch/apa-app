@@ -28,40 +28,50 @@
         }
         
         /* Contenedor de búsqueda avanzada */
+        /* Contenedor principal de la búsqueda */
         .search-wrapper {
             padding: 15px;
             display: flex;
-            align-items: center;
-            gap: 10px;
+            align-items: center; /* Alineación vertical perfecta */
+            gap: 10px; /* Espacio entre la barra y el botón */
         }
+
         .input-group {
-            position: relative;
-            flex-grow: 1;
+            flex-grow: 1; /* La barra ocupa el espacio sobrante */
         }
+
         .input-group input {
             width: 100%;
-            padding: 12px 45px 12px 15px; /* Espacio para el icono a la derecha */
+            padding: 12px 15px;
             border-radius: 10px;
             border: 1px solid #ddd;
             font-size: 16px;
             box-sizing: border-box;
+            height: 45px; /* Altura fija para alinear con el botón */
         }
-        .qr-scan-icon {
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
+
+        /* Botón de Escaneo al lado de la barra */
+        .qr-btn {
+            background-color: var(--azul-apa);
+            color: white;
             border: none;
-            cursor: pointer;
-            padding: 5px;
+            border-radius: 10px;
+            height: 45px; /* Misma altura que el input */
+            padding: 0 15px;
             display: flex;
             align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+            white-space: nowrap; /* Evita que el texto se rompa */
         }
-        .qr-scan-icon svg {
-            width: 24px;
-            height: 24px;
-            fill: var(--azul-apa);
+
+        .qr-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: white;
+            margin-right: 8px; /* Espacio entre icono y texto */
         }
 
         /* Lista de Miembros */
@@ -99,13 +109,15 @@
     <div class="search-wrapper">
         <div class="input-group">
             <input type="text" id="buscador" placeholder="Buscar por nombre o ID..." oninput="filtrar()">
-            <button class="qr-scan-icon" onclick="toggleQR()">
-                <!-- Icono SVG que imita el escáner de la imagen -->
-                <svg viewBox="0 0 24 24">
-                    <path d="M4 4h6V2H2v8h2V4zm10-2v2h6v6h2V2h-8zM2 14v8h8v-2H4v-6H2zm20 0h-2v6h-6v2h8v-8zM7 7h4v4H7V7zm6 0h4v4h-4V7zm-6 6h4v4H7v-4zm6 0h4v4h-4v-4z"/>
-                </svg>
-            </button>
         </div>
+        
+        <!-- Botón alineado a la derecha con Icono + Texto -->
+        <button class="qr-btn" onclick="toggleQR()">
+            <svg viewBox="0 0 24 24">
+                <path d="M4 4h6V2H2v8h2V4zm10-2v2h6v6h2V2h-8zM2 14v8h8v-2H4v-6H2zm20 0h-2v6h-6v2h8v-8zM7 7h4v4H7V7zm6 0h4v4h-4V7zm-6 6h4v4H7v-4zm6 0h4v4h-4v-4z"/>
+            </svg>
+            ESCANEAR
+        </button>
     </div>
 
     <div class="member-list" id="lista-miembros">
