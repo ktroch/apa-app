@@ -70,14 +70,11 @@
         function navegar(destino) {
             if (destino === 'registro') {
                 window.location.href = 'registro.html';
+            } else if (destino === 'directorio') { // O el nombre que le hayas puesto al ID en el HTML
+                window.location.href = 'directorio.html';
             } else {
                 alert("Módulo " + destino + " en construcción");
             }
-        }
-
-        function logout() {
-            sessionStorage.clear();
-            window.location.href = 'index.html';
         }
     </script>
 </body>
