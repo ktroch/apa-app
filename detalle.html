@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Detalle del Miembro - APA Zurich</title>
-    <link rel="stylesheet" href="css/style.css">
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
             --azul-apa: #1a3a63;
@@ -16,6 +14,7 @@
 
         body { margin: 0; font-family: sans-serif; background-color: #f8f9fa; color: #333; }
 
+        /* HEADER CORREGIDO */
         .header-detalle {
             background: var(--azul-apa);
             color: white;
@@ -23,103 +22,69 @@
             display: flex;
             align-items: center;
             position: relative;
-            height: 30px;
+            height: 40px;
         }
-
         .back-btn {
             position: absolute;
             left: 10px;
             background: none;
             border: none;
             color: white;
-            font-size: 1.8rem;
+            font-size: 2.2rem;
             cursor: pointer;
+            z-index: 10;
+            line-height: 1;
         }
-
         .title-center { width: 100%; text-align: center; margin: 0; font-size: 1.1rem; letter-spacing: 1px; }
 
-        /* Contenedor de Botones de Acción Superiores */
+        /* BOTONES EN FILA HORIZONTAL */
         .action-bar {
             display: flex;
-            justify-content: center;
+            justify-content: flex-start;
             gap: 10px;
             padding: 20px 15px;
-            flex-wrap: wrap;
+            overflow-x: auto;
+            white-space: nowrap;
+            -webkit-overflow-scrolling: touch;
         }
-
         .btn-action {
             border: none;
-            border-radius: 12px;
+            border-radius: 10px;
             padding: 10px 15px;
             color: white;
             font-weight: bold;
             display: flex;
             align-items: center;
-            gap: 8px;
-            font-size: 0.85rem;
+            gap: 6px;
+            font-size: 0.8rem;
             cursor: pointer;
-            transition: opacity 0.2s;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            flex-shrink: 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
-
         .btn-modificar { background-color: var(--naranja-mod); }
         .btn-baja { background-color: var(--rojo-baja); }
         .btn-renovar { background-color: var(--verde-renovar); }
         .btn-eliminar { background-color: #333; }
 
-        /* Perfil del Miembro */
-        .profile-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 0 20px 40px 20px;
-        }
-
+        /* PERFIL */
+        .profile-container { display: flex; flex-direction: column; align-items: center; padding: 0 20px 40px 20px; }
         .photo-large {
-            width: 140px;
-            height: 140px;
+            width: 150px; height: 150px;
             border-radius: 50%;
             object-fit: cover;
             border: 4px solid white;
             box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-            margin-bottom: 15px;
+            margin-bottom: 10px;
         }
+        .status-badge { font-weight: bold; font-size: 1rem; margin-bottom: 20px; text-transform: uppercase; }
+        .activo { color: var(--verde-renovar); }
+        .inactivo { color: var(--rojo-baja); }
 
-        .status-badge {
-            padding: 6px 16px;
-            border-radius: 20px;
-            font-weight: bold;
-            font-size: 0.9rem;
-            margin-bottom: 20px;
-        }
-
-        .info-card {
-            background: white;
-            width: 100%;
-            border-radius: 20px;
-            padding: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
-
-        .info-row {
-            margin-bottom: 15px;
-            border-bottom: 1px solid #f0f0f0;
-            padding-bottom: 8px;
-        }
-
-        .info-label {
-            font-size: 0.75rem;
-            color: #888;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .info-value {
-            font-size: 1.1rem;
-            color: #222;
-            font-weight: 500;
-            margin-top: 2px;
-        }
+        /* TARJETA DE DATOS */
+        .info-card { background: white; width: 100%; border-radius: 20px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); box-sizing: border-box; }
+        .info-row { margin-bottom: 15px; border-bottom: 1px solid #f0f0f0; padding-bottom: 8px; }
+        .info-label { font-size: 0.75rem; color: #888; text-transform: uppercase; letter-spacing: 0.5px; }
+        .info-value { font-size: 1.1rem; color: #222; font-weight: 500; margin-top: 2px; word-break: break-all; }
 
         .hidden { display: none !important; }
     </style>
@@ -131,50 +96,19 @@
         <h2 class="title-center">PERFIL DEL MIEMBRO</h2>
     </div>
 
-    <!-- Botones de Acción (Encima de la foto) -->
     <div class="action-bar" id="action-bar">
-        <button class="btn-action btn-modificar" onclick="modificar()">
-            <span>✏️ Modificar</span>
-        </button>
-        
-        <button id="btn-baja" class="btn-action btn-baja hidden" onclick="darBaja()">
-            <span>🚫 Dar de Baja</span>
-        </button>
-
-        <button id="btn-renovar" class="btn-action btn-renovar hidden" onclick="renovar()">
-            <span>🔄 Renovar</span>
-        </button>
-
-        <button class="btn-action btn-eliminar" onclick="eliminar()">
-            <span>🗑️ Eliminar</span>
-        </button>
+        <button class="btn-action btn-modificar" onclick="modificar()">✏️ Modificar</button>
+        <button id="btn-baja" class="btn-action btn-baja hidden" onclick="darBaja()">🚫 Baja</button>
+        <button id="btn-renovar" class="btn-action btn-renovar hidden" onclick="renovar()">🔄 Renovar</button>
+        <button class="btn-action btn-eliminar" onclick="eliminar()">🗑️ Eliminar</button>
     </div>
 
     <div class="profile-container" id="profile-content">
-        <img id="p-foto" src="https://via.placeholder.com/150" class="photo-large">
+        <img id="p-foto" src="" class="photo-large">
         <div id="p-estado" class="status-badge">CARGANDO...</div>
 
-        <div class="info-card">
-            <div class="info-row">
-                <div class="info-label">Apellidos</div>
-                <div id="p-apellido" class="info-value">---</div>
-            </div>
-            <div class="info-row">
-                <div class="info-label">Nombres</div>
-                <div id="p-nombre" class="info-value">---</div>
-            </div>
-            <div class="info-row">
-                <div class="info-label">Teléfono</div>
-                <div id="p-telefono" class="info-value">---</div>
-            </div>
-            <div class="info-row">
-                <div class="info-label">ID Identificación</div>
-                <div id="p-id" class="info-value">---</div>
-            </div>
-            <div class="info-row">
-                <div class="info-label">Fecha de Expiración</div>
-                <div id="p-expiracion" class="info-value">---</div>
-            </div>
+        <div class="info-card" id="campos-dinamicos">
+            <!-- Los datos se inyectan aquí respetando tu orden -->
         </div>
     </div>
 
@@ -182,28 +116,46 @@
         const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyRAEbz2KMc6lvUX-SX085Autf4OGwRBjP-gVgVSxgGZvL9nn1x3zj0FJxD-iNX-XZyIw/exec'; 
 
         async function cargarDetalle() {
-            const id = localStorage.getItem('selectedMemberId');
-            if (!id) return;
+            const idSeleccionado = localStorage.getItem('selectedMemberId');
+            if (!idSeleccionado) return;
 
             try {
-                // Aquí llamaríamos a una función específica para obtener UN solo miembro
                 const res = await fetch(`${WEB_APP_URL}?action=obtenerMiembros`);
                 const miembros = await res.json();
-                const m = miembros.find(item => item.id === id);
+                const m = miembros.find(item => item.id === idSeleccionado);
 
                 if (m) {
                     document.getElementById('p-foto').src = m.foto || 'https://via.placeholder.com/150';
-                    document.getElementById('p-apellido').innerText = m.apellido;
-                    document.getElementById('p-nombre').innerText = m.nombre;
-                    document.getElementById('p-telefono').innerText = m.telefono || 'No registrado';
-                    document.getElementById('p-id').innerText = m.id;
-                    document.getElementById('p-expiracion').innerText = m.expiracion;
-                    
-                    const estadoElem = document.getElementById('p-estado');
-                    estadoElem.innerText = m.estado.toUpperCase();
-                    estadoElem.className = 'status-badge ' + m.estado.toLowerCase();
+                    document.getElementById('p-estado').innerText = m.estado.toUpperCase();
+                    document.getElementById('p-estado').className = 'status-badge ' + m.estado.toLowerCase();
 
-                    // LÓGICA DE BOTONES VALIDADOS
+                    // Definir orden y etiquetas
+                    const ordenCampos = [
+                        { label: 'Apellidos', key: 'apellido' },
+                        { label: 'Nombres', key: 'nombre' },
+                        { label: 'Teléfono', key: 'telefono' },
+                        { label: 'ID Identificación', key: 'id' },
+                        { label: 'Fecha de Expiración', key: 'expiracion' },
+                        { label: 'Correo Electrónico', key: 'email' },
+                        { label: 'Dirección', key: 'direccion' },
+                        { label: 'Fecha de Expedición', key: 'expedicion' }
+                    ];
+
+                    const contenedor = document.getElementById('campos-dinamicos');
+                    contenedor.innerHTML = ordenCampos.map(campo => {
+                        let valor = m[campo.key] || '---';
+                        // Limpieza visual si es fecha ISO
+                        if(campo.key === 'expiracion' || campo.key === 'expedicion') {
+                            valor = valor.includes('T') ? new Date(valor).toLocaleDateString('es-ES') : valor;
+                        }
+                        return `
+                            <div class="info-row">
+                                <div class="info-label">${campo.label}</div>
+                                <div class="info-value">${valor}</div>
+                            </div>
+                        `;
+                    }).join('');
+
                     validarBotones(m.expiracion);
                 }
             } catch (e) {
@@ -211,31 +163,26 @@
             }
         }
 
-        function validarBotones(fechaExpiracionStr) {
+        function validarBotones(fechaStr) {
             const hoy = new Date();
-            // Asumiendo formato DD/MM/YYYY del Excel
-            const partes = fechaExpiracionStr.split('/');
-            const fechaExp = new Date(partes[2], partes[1] - 1, partes[0]);
-
+            const fechaExp = new Date(fechaStr); // Funciona con formato ISO
+            
             const btnBaja = document.getElementById('btn-baja');
             const btnRenovar = document.getElementById('btn-renovar');
 
             if (fechaExp > hoy) {
-                // Sigue vigente -> Mostrar Dar de Baja
                 btnBaja.classList.remove('hidden');
                 btnRenovar.classList.add('hidden');
             } else {
-                // Expirado -> Mostrar Renovar
                 btnRenovar.classList.remove('hidden');
                 btnBaja.classList.add('hidden');
             }
         }
 
-        // Funciones para los botones (Lógica que programaremos luego)
-        function modificar() { alert("Abriendo editor..."); }
-        function darBaja() { if(confirm("¿Seguro que quieres dar de baja a este miembro?")) alert("Cambiando estado a Inactivo..."); }
-        function renovar() { alert("Renovando por 5 años adicionales..."); }
-        function eliminar() { if(confirm("¿ELIMINAR DEFINITIVAMENTE? Esta acción no se puede deshacer (Ley LPD).")) alert("Eliminando registro..."); }
+        function modificar() { alert("Función Modificar"); }
+        function darBaja() { if(confirm("¿Dar de baja?")) alert("Cambiando a inactivo..."); }
+        function renovar() { alert("Renovando por 5 años..."); }
+        function eliminar() { if(confirm("¿Eliminar registro?")) alert("Borrando..."); }
 
         window.onload = cargarDetalle;
     </script>
