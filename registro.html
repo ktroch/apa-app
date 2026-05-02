@@ -103,10 +103,47 @@
             }
         }
 
-        function guardarRegistro() {
-            // Por ahora solo log para probar el diseño
-            console.log("Guardando...");
-            alert("¡Diseño corregido! Listo para enviar.");
+        async function guardarRegistro() {
+            const btn = document.getElementById('save-btn');
+            const WEB_APP_URL = 'TU_URL_DE_GOOGLE_SCRIPT'; // Asegúrate de que sea la última
+
+            // Validación básica
+            if (!document.getElementById('nombre').value || !photoBase64) {
+                alert("El nombre y la foto son obligatorios");
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerText = "GUARDANDO EN NUBE...";
+
+            const datos = {
+                action: "registrarPersona",
+                nombre: document.getElementById('nombre').value,
+                apellido: document.getElementById('apellido').value,
+                rol: document.getElementById('rol').value,
+                telefono: document.getElementById('telefono').value,
+                tipo_doc: document.getElementById('tipo_doc').value,
+                num_doc: document.getElementById('num_doc').value,
+                foto: photoBase64
+            };
+
+            try {
+                // Usamos la misma técnica que en el login
+                const response = await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    mode: 'no-cors', 
+                    body: JSON.stringify(datos)
+                });
+
+                alert("¡Registro exitoso! El miembro ha sido guardado.");
+                window.location.href = 'home.html';
+
+            } catch (error) {
+                console.error("Error:", error);
+                alert("Hubo un error al guardar. Reintenta.");
+                btn.disabled = false;
+                btn.innerText = "GUARDAR REGISTRO";
+            }
         }
     </script>
 </body>
