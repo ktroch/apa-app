@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Detalle del Miembro - APA Zurich</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         :root {
             --azul-apa: #1a3a63;
@@ -101,6 +103,9 @@
         <button id="btn-baja" class="btn-action btn-baja hidden" onclick="darBaja()">🚫 Baja</button>
         <button id="btn-renovar" class="btn-action btn-renovar hidden" onclick="renovar()">🔄 Renovar</button>
         <button class="btn-action btn-eliminar" onclick="eliminar()">🗑️ Eliminar</button>
+        <button class="btn-action" style="background-color: #5d2e8c;" onclick="confirmarGenerarID()">
+            <span>🪪 ID Card</span>
+        </button>
     </div>
 
     <div class="profile-container" id="profile-content">
@@ -185,6 +190,75 @@
         function darBaja() { if(confirm("¿Dar de baja?")) alert("Cambiando a inactivo..."); }
         function renovar() { alert("Renovando por 5 años..."); }
         function eliminar() { if(confirm("¿Eliminar registro?")) alert("Borrando..."); }
+
+        //Logica del generador de tarjetas.
+        async function confirmarGenerarID() {
+            if (confirm("¿Deseas generar el PDF de la tarjeta de identificación?")) {
+                generarPDF();
+            }
+        }
+
+        async function generarPDF() {
+            const { jsPDF } = window.jspdf;
+            // Tamaño estándar tarjeta de crédito (ID-1): 85.6mm x 53.98mm
+            const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: [85.6, 54] });
+            
+            const id = document.getElementById('p-id').innerText;
+            const nombre = document.getElementById('p-nombre').innerText;
+            const apellido = document.getElementById('p-apellido').innerText;
+            const expedicion = "01/01/2026"; // Ejemplo, usa el dato real de tu objeto 'm'
+            const expiracion = document.getElementById('p-expiracion').innerText;
+            const fotoSrc = document.getElementById('p-foto').src;
+
+            // --- ANVERSO ---
+            // Foto (aprox 70% altura, 1/3 ancho)
+            try {
+                doc.addImage(fotoSrc, 'JPEG', 5, 8, 25, 38); // x, y, ancho, alto
+            } catch(e) { console.error("Error con la foto"); }
+
+            doc.setFontSize(8);
+            doc.setTextColor(26, 58, 99); // Azul APA
+            
+            let xInfo = 35; 
+            doc.text("NOMBRES:", xInfo, 15);
+            doc.setFont(undefined, 'bold').text(nombre, xInfo, 19);
+            
+            doc.setFont(undefined, 'normal').text("APELLIDOS:", xInfo, 26);
+            doc.setFont(undefined, 'bold').text(apellido, xInfo, 30);
+            
+            doc.setFontSize(7);
+            doc.text(`EXPEDICIÓN: ${expedicion}`, xInfo, 40);
+            doc.text(`EXPIRACIÓN: ${expiracion}`, xInfo, 45);
+
+            // --- REVERSO ---
+            doc.addPage([85.6, 54], 'landscape');
+            
+            // Generar QR invisible para capturarlo
+            const qrDiv = document.createElement('div');
+            new QRCode(qrDiv, { text: id, width: 100, height: 100 });
+            
+            setTimeout(() => {
+                const qrCanvas = qrDiv.querySelector('canvas');
+                const qrImg = qrCanvas.toDataURL("image/png");
+                
+                doc.addImage(qrImg, 'PNG', 5, 10, 25, 25);
+                doc.setFontSize(6);
+                doc.text(id, 5, 40);
+
+                // Disclaimer (2/3 restantes)
+                const disclaimerX = 35;
+                doc.setFontSize(5);
+                const txtES = "La siguiente identificación es personal e intransferible y su portador se compromete a hacer un uso adecuado de ella. APA Zürich se reserva el derecho de retirarla por uso indebido.";
+                const txtEN = "The following identification is personal and non-transferable. The holder agrees to make appropriate use of it. APA Zürich reserves the right to withdraw it for improper use.";
+                const txtDE = "Der folgende Ausweis ist persönlich und nicht übertragbar. Der Inhaber verpflichtet sich zu einer ordnungsgemäßen Verwendung. APA Zürich behält sich das Recht vor, ihn bei missbräuchlicher Verwendung einzuziehen.";
+
+                doc.text(doc.splitTextToSize(txtES, 45), disclaimerX, 10);
+                doc.text(doc.splitTextToSize(txtEN, 45), disclaimerX, 25);
+                doc.text(doc.splitTextToSize(txtDE, 45), disclaimerX, 40);
+
+                doc.save(`ID_${id}.pdf`);
+            }, 500);
+        }
 
         window.onload = cargarDetalle;
     </script>
