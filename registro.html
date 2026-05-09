@@ -7,24 +7,36 @@
     <link rel="stylesheet" href="css/style.css">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        .form-body { padding: 15px; display: flex; flex-direction: column; gap: 12px; }
+        .form-body { padding: 15px; display: flex; flex-direction: column; gap: 12px; padding-bottom: 30px; }
         .photo-box { 
             width: 100%; height: 180px; border: 2px dashed var(--azul-apa); 
             border-radius: 10px; display: flex; justify-content: center; 
             align-items: center; background: #f9f9f9; overflow: hidden;
         }
         .photo-box img { width: 100%; height: 100%; object-fit: cover; }
-        label { display: block; margin-top: 5px; font-weight: bold; color: var(--azul-apa); }
-        input, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; }
-        .btn-primario { background: var(--azul-apa); color: white; border: none; padding: 15px; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        label { display: block; margin-top: 5px; font-weight: bold; color: var(--azul-apa); font-size: 0.9rem; }
+        input, select { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
+        .btn-primario { background: var(--azul-apa); color: white; border: none; padding: 15px; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 1rem; }
+        .btn-cancelar { background: #666; color: white; border: none; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 5px; font-size: 0.9rem; }
         .btn-primario:disabled { background: #ccc; }
+        
+        /* Ajuste para el header con flecha */
+        .header-detalle {
+            background: var(--azul-apa); color: white; padding: 15px;
+            display: flex; align-items: center; position: relative; height: 40px;
+        }
+        .back-btn {
+            position: absolute; left: 10px; background: none; border: none;
+            color: white; font-size: 2.2rem; cursor: pointer; line-height: 1;
+        }
+        .title-center { width: 100%; text-align: center; margin: 0; font-size: 1.1rem; letter-spacing: 1px; }
     </style>
 </head>
 <body>
 
     <div class="header-detalle">
-        <button class="back-btn" onclick="window.history.back()">‹</button>
-        <h2 class="title-center" id="form-title">REGISTRO DE MIEMBRO</h2>
+        <button class="back-btn" onclick="cancelar()">‹</button>
+        <h2 class="title-center" id="form-title">REGISTRO</h2>
     </div>
 
     <div class="form-body">
@@ -66,7 +78,8 @@
         <label>Número de Documento</label>
         <input type="text" id="num_doc" placeholder="Número identificador">
 
-        <button class="btn-primario" id="btn-guardar" onclick="guardarDatos()">GUARDAR REGISTRO</button>
+        <button class="btn-primario" id="btn-guardar" onclick="guardarDatos()">GUARDAR</button>
+        <button class="btn-cancelar" onclick="cancelar()">CANCELAR</button>
     </div>
 
     <script>
@@ -75,14 +88,13 @@
         let esEdicion = false;
         let idMiembroEdicion = "";
 
-        // Al cargar, verificar si venimos a "Modificar"
         window.onload = async function() {
             idMiembroEdicion = localStorage.getItem('selectedMemberId');
             const modo = localStorage.getItem('formMode');
 
             if (modo === 'edit' && idMiembroEdicion) {
                 esEdicion = true;
-                document.getElementById('form-title').innerText = "MODIFICAR MIEMBRO";
+                document.getElementById('form-title').innerText = "MODIFICAR";
                 document.getElementById('btn-guardar').innerText = "ACTUALIZAR DATOS";
                 await precargarDatos(idMiembroEdicion);
             }
@@ -113,6 +125,11 @@
                     }
                 }
             } catch (e) { console.error("Error precargando", e); }
+        }
+
+        function cancelar() {
+            localStorage.removeItem('formMode');
+            window.location.href = 'directorio.html';
         }
 
         function procesarFoto(event) {
@@ -156,7 +173,6 @@
             };
 
             try {
-                // Importante: El script de Google debe tener la función 'modificarPersona'
                 await fetch(WEB_APP_URL, {
                     method: 'POST',
                     mode: 'no-cors',
@@ -165,11 +181,12 @@
 
                 alert(esEdicion ? "¡Actualización exitosa!" : "¡Registro exitoso!");
                 localStorage.removeItem('formMode');
-                window.location.href = 'home.html';
+                window.location.href = 'directorio.html';
             } catch (error) {
                 console.error("Error:", error);
                 alert("Hubo un error. Reintenta.");
                 btn.disabled = false;
+                btn.innerText = "GUARDAR";
             }
         }
     </script>
