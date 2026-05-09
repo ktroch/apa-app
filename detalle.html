@@ -109,7 +109,7 @@
 
     <div class="footer-actions">
         <button class="btn-id-card" onclick="confirmarGenerarID()">
-            <span>🪪</span> GENERAR ID CARD ELEGANTE
+            <span>💳</span> GENERAR ID CARD
         </button>
     </div>
 
@@ -177,44 +177,52 @@
         // --- MOTOR REDISEÑADO DE PDF ---
 
         // 1. Función clave: Corrección de Rotación de Imagen
-        function procesarImagen(imgElement) {
-            return new Promise((resolve, reject) => {
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-                
-                // Forzar carga para obtener dimensiones naturales
+        async function procesarImagen(imgElement) {
+            if (!imgElement || !imgElement.src || imgElement.src.includes('via.placeholder')) {
+                console.warn("Usando imagen por defecto o vacía");
+                return null; 
+            }
+
+            return new Promise((resolve) => {
                 const img = new Image();
-                img.crossOrigin = "Anonymous"; // Crucial para imágenes de Google Drive/URLs externas
-                img.src = imgElement.src;
+                img.crossOrigin = "Anonymous"; 
                 
                 img.onload = function() {
-                    // Establecer canvas al tamaño natural de la foto, "aplanando" la orientación
+                    const canvas = document.createElement('canvas');
                     canvas.width = img.naturalWidth;
                     canvas.height = img.naturalHeight;
+                    const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0);
-                    // Devolver como DataURL (JPEG para fotos)
                     resolve(canvas.toDataURL("image/jpeg", 0.9));
                 };
-                img.onerror = reject;
+
+                img.onerror = function() {
+                    console.error("No se pudo cargar la imagen desde la URL:", imgElement.src);
+                    resolve(null); // Si falla, devolvemos null para que el PDF siga generándose sin foto
+                };
+
+                img.src = imgElement.src;
             });
         }
 
         // 2. Función clave: Carga del Logo como DataURL
-        function cargarLogoAPA() {
-            return new Promise((resolve, reject) => {
+        async function cargarLogoAPA() {
+            return new Promise((resolve) => {
                 const img = new Image();
-                img.src = 'css/logo_id.png'; // Ruta a la versión pequeña del logo para PDF
+                // Cambia 'logo.png' por la ruta real de tu archivo de logo
+                img.src = 'logo.png'; 
+                
                 img.onload = () => {
                     const canvas = document.createElement('canvas');
-                    canvas.width = img.width; canvas.height = img.height;
+                    canvas.width = img.width;
+                    canvas.height = img.height;
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0);
                     resolve(canvas.toDataURL("image/png"));
                 };
                 img.onerror = () => {
-                    // Fallback si no hay logo, resolvemos con string vacío para no romper el PDF
-                    console.warn("Logo no encontrado");
-                    resolve("");
+                    console.warn("Logo no encontrado en la ruta especificada");
+                    resolve(null);
                 };
             });
         }
@@ -245,6 +253,15 @@
             // CARGA DE ACTIVOS (Foto corregida y Logo)
             const fotoData = await procesarImagen(document.getElementById('p-foto'));
             const logoData = await cargarLogoAPA();
+
+            // FOTO (Solo si existe y cargó bien)
+            if (fotoData) {
+                doc.addImage(fotoData, 'JPEG', 4, 10, 20, 30); 
+            } else {
+                // Opcional: Dibujar un recuadro gris si no hay foto
+                doc.setDrawColor(200);
+                doc.rect(4, 10, 20, 30);
+            }
 
             // Paleta de Colores APA Zurich
             const azulApa = [26, 58, 99];
