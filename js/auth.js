@@ -12,61 +12,31 @@ async function intentarLogin() {
         return;
     }
 
-    // Estado visual de carga
     loginBtn.disabled = true;
     loginBtn.innerText = "Verificando...";
-    errorMsg.style.display = 'none';
 
     try {
-        // Usamos GET para el login para recibir la respuesta JSON de forma segura
         const urlConsulta = `${WEB_APP_URL}?action=login&user=${encodeURIComponent(user)}&pass=${encodeURIComponent(pass)}`;
         const res = await fetch(urlConsulta);
-        
-        if (!res.ok) throw new Error("Error en la respuesta del servidor");
-        
         const data = await res.json();
 
         if (data.status === "success") {
-            // --- AQUÍ ESTÁ EL CAMBIO CLAVE ---
-            // Guardamos el NOMBRE real (ej: "Kevin Troch") y el ROL (ej: "Admin")
+            // GUARDADO CORRECTO: Nombre al nombre, Rol al rol.
             sessionStorage.setItem('user_role', data.role); 
-            sessionStorage.setItem('user_name', data.nombre); 
+            sessionStorage.setItem('user_name', data.nombre); // Aquí ahora dirá "Kevin Troch"
             
-            // Si el usuario marcó "Recordarme", guardamos en LocalStorage
             if (document.getElementById('remember').checked) {
-                localStorage.setItem('apa_session', JSON.stringify({
-                    role: data.role,
-                    nombre: data.nombre,
-                    user: user // Guardamos el user id solo para autorellenar si fuera necesario
-                }));
+                localStorage.setItem('apa_session', JSON.stringify(data));
             }
-
-            // Redirección al Home
             window.location.href = 'home.html'; 
         } else {
-            errorMsg.innerText = "Usuario o contraseña incorrectos";
             errorMsg.style.display = 'block';
             loginBtn.disabled = false;
             loginBtn.innerText = "Entrar";
         }
     } catch (e) {
-        console.error("Error de Login:", e);
-        errorMsg.innerText = "Error de conexión con el servidor";
+        errorMsg.innerText = "Error de conexión";
         errorMsg.style.display = 'block';
         loginBtn.disabled = false;
-        loginBtn.innerText = "Entrar";
     }
 }
-
-// Escuchar el evento click del botón (asegúrate que el ID en index.html sea 'login-btn')
-document.addEventListener('DOMContentLoaded', () => {
-    const btn = document.getElementById('login-btn');
-    if (btn) {
-        btn.addEventListener('click', intentarLogin);
-    }
-    
-    // Opcional: Permitir entrar con la tecla "Enter"
-    document.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') intentarLogin();
-    });
-});
