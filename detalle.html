@@ -9,16 +9,14 @@
     <style>
         :root {
             --azul-apa: #1a3a63;
-            --rojo-apa: #c8102e; /* Tono rojo suizo */
+            --rojo-apa: #c8102e;
             --rojo-baja: #d93025;
             --verde-renovar: #1e7e34;
             --naranja-mod: #f2994a;
-            --purpura-id: #5d2e8c;
         }
 
         body { margin: 0; font-family: sans-serif; background-color: #f8f9fa; color: #333; padding-bottom: 70px; }
 
-        /* HEADER */
         .header-detalle {
             background: var(--azul-apa);
             color: white; padding: 15px;
@@ -33,7 +31,6 @@
         }
         .title-center { width: 100%; text-align: center; margin: 0; font-size: 1.1rem; letter-spacing: 1px; }
 
-        /* BARRA DE ACCIONES SUPERIOR */
         .action-bar {
             display: flex; justify-content: space-around;
             gap: 10px; padding: 20px 15px;
@@ -51,7 +48,6 @@
         .btn-renovar { background-color: var(--verde-renovar); }
         .btn-eliminar { background-color: #333; }
 
-        /* PERFIL (Interfaz de la App) */
         .profile-container { display: flex; flex-direction: column; align-items: center; padding: 0 20px; }
         .photo-large {
             width: 150px; height: 150px;
@@ -63,13 +59,11 @@
         .activo { color: var(--verde-renovar); }
         .inactivo { color: var(--rojo-baja); }
 
-        /* TARJETA DE DATOS */
         .info-card { background: white; width: 100%; border-radius: 20px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); box-sizing: border-box; margin-bottom: 30px;}
         .info-row { margin-bottom: 15px; border-bottom: 1px solid #f0f0f0; padding-bottom: 8px; }
         .info-label { font-size: 0.75rem; color: #888; text-transform: uppercase; }
         .info-value { font-size: 1.1rem; color: #222; font-weight: 500; margin-top: 2px; }
 
-        /* BOTÓN ID CARD AL FINAL */
         .footer-actions { display: flex; justify-content: center; padding: 0 20px; }
         .btn-id-card {
             background-color: var(--azul-apa);
@@ -128,7 +122,9 @@
                 const m = miembros.find(item => item.id === idSeleccionado);
 
                 if (m) {
-                    document.getElementById('p-foto').src = m.foto || 'https://via.placeholder.com/150';
+                    const fotoElem = document.getElementById('p-foto');
+                    fotoElem.src = m.foto || 'https://via.placeholder.com/150';
+                    
                     document.getElementById('p-estado').innerText = m.estado.toUpperCase();
                     document.getElementById('p-estado').className = 'status-badge ' + m.estado.toLowerCase();
 
@@ -151,7 +147,10 @@
                         if(campo.key === 'expiracion' || campo.key === 'expedicion') {
                             valor = valor.includes('T') ? new Date(valor).toLocaleDateString('es-ES') : valor;
                         }
-                        return `<div class="info-row"><div class="info-label">${campo.label}</div><div class="info-value" id="val-${campo.key}">${valor}</div></div>`;
+                        return `<div class="info-row">
+                                    <div class="info-label">${campo.label}</div>
+                                    <div class="info-value" id="val-${campo.key}">${valor}</div>
+                                </div>`;
                     }).join('');
 
                     validarBotones(m.expiracion);
@@ -174,77 +173,32 @@
             }
         }
 
-        // --- MOTOR REDISEÑADO DE PDF ---
+        // --- LÓGICA DE IMÁGENES CORREGIDA ---
 
-        // 1. Función clave: Corrección de Rotación de Imagen
-        async function procesarImagen(imgElement) {
-            // Si no hay elemento o la URL es inválida/vacía
-            if (!imgElement || !imgElement.src || imgElement.src === "" || imgElement.src.includes(window.location.host)) {
-                console.warn("URL de imagen no válida o vacía.");
-                return null;
-            }
-
+        function obtenerImagenBase64(url) {
             return new Promise((resolve) => {
                 const img = new Image();
-                // Intentar evitar errores de CORS
-                img.crossOrigin = "Anonymous"; 
-                
-                img.onload = function() {
-                    try {
-                        const canvas = document.createElement('canvas');
-                        canvas.width = img.naturalWidth;
-                        canvas.height = img.naturalHeight;
-                        const ctx = canvas.getContext('2d');
-                        ctx.drawImage(img, 0, 0);
-                        resolve(canvas.toDataURL("image/jpeg", 0.9));
-                    } catch (err) {
-                        console.error("Error al procesar canvas (posible CORS):", err);
-                        resolve(null); // Si falla el canvas, devolvemos null
-                    }
-                };
-
-                img.onerror = function() {
-                    console.error("Error de carga en Image object:", imgElement.src);
-                    resolve(null);
-                };
-
-                img.src = imgElement.src;
-            });
-        }
-
-        // 2. Función clave: Carga del Logo como DataURL
-        async function cargarLogoAPA() {
-            return new Promise((resolve) => {
-                const img = new Image();
-                // Asegúrate de que el nombre del archivo sea exactamente igual (mayúsculas/minúsculas)
-                img.src = 'logo.png'; 
-                
+                img.crossOrigin = 'Anonymous';
                 img.onload = () => {
-                    try {
-                        const canvas = document.createElement('canvas');
-                        canvas.width = img.width;
-                        canvas.height = img.height;
-                        const ctx = canvas.getContext('2d');
-                        ctx.drawImage(img, 0, 0);
-                        resolve(canvas.toDataURL("image/png"));
-                    } catch (e) {
-                        resolve(null);
-                    }
+                    const canvas = document.createElement('canvas');
+                    canvas.width = img.naturalWidth;
+                    canvas.height = img.naturalHeight;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0);
+                    resolve(canvas.toDataURL('image/jpeg'));
                 };
-                img.onerror = () => {
-                    console.warn("No se pudo cargar el logo desde logo.png");
-                    resolve(null);
-                };
+                img.onerror = () => resolve(null);
+                img.src = url;
             });
         }
 
         async function confirmarGenerarID() {
-            if (confirm("¿Generar y descargar la tarjeta de identificación profesional? Se guardará en tus descargas.")) {
+            if (confirm("¿Generar ID Card?")) {
                 try {
                     await generarPDFElegante();
                 } catch (e) {
-                    alert("Error generando el PDF profesional. Revisa la consola.");
                     console.error(e);
+                    alert("Error en la generación. Verifica la consola.");
                 }
             }
         }
@@ -253,127 +207,84 @@
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: [85.6, 54] });
             
-            // Obtener elementos
-            const elId = document.getElementById('val-id');
-            const elNombre = document.getElementById('val-nombre');
-            const elApellido = document.getElementById('val-apellido');
-
-            // Validación de seguridad: Si no han cargado los datos, no continuar
-            if (!elId || elId.innerText === "---") {
-                alert("Los datos del miembro aún no han cargado. Por favor espera un segundo.");
-                return;
-            }
-
-            const id = elId.innerText;
-            const nombre = elNombre.innerText;
-            const apellido = elApellido.innerText;
+            const id = document.getElementById('val-id').innerText;
+            const nombre = document.getElementById('val-nombre').innerText;
+            const apellido = document.getElementById('val-apellido').innerText;
             const expedicion = document.getElementById('val-expedicion').innerText;
             const expiracion = document.getElementById('val-expiracion').innerText;
-            
-            // CARGA DE IMÁGENES
-            const fotoData = await procesarImagen(document.getElementById('p-foto'));
-            const logoData = await cargarLogoAPA();
+            const fotoUrl = document.getElementById('p-foto').src;
 
-            // FOTO (Solo si existe y cargó bien)
-            if (fotoData) {
-                doc.addImage(fotoData, 'JPEG', 4, 10, 20, 30); 
-            } else {
-                // Opcional: Dibujar un recuadro gris si no hay foto
-                doc.setDrawColor(200);
-                doc.rect(4, 10, 20, 30);
-            }
-
-            // Paleta de Colores APA Zurich
+            // Colores
             const azulApa = [26, 58, 99];
             const rojoApa = [200, 16, 46];
 
-            // ================= ANVERSO (FRENTE) =================
+            // 1. Procesar Fotos y Logo
+            const fotoData = await obtenerImagenBase64(fotoUrl);
+            const logoData = await obtenerImagenBase64('logo.png');
 
-            // FONDO ELEGANTE
-            // Franja azul marino a la izquierda
+            // --- ANVERSO ---
             doc.setFillColor(...azulApa);
-            doc.rect(0, 0, 85.6/3, 54, 'F');
+            doc.rect(0, 0, 28, 54, 'F'); // Franja lateral
             
-            // DETALLE ROJO (Triángulo Suizo inspirado en el logo)
-            doc.setFillColor(...rojoApa);
-            doc.triangle(85.6/3 - 5, 0, 85.6/3, 10, 85.6/3, 0, 'F');
-
-            // FOTO (Alineada en la franja azul, 70% alto)
             if(fotoData) {
-                // x, y, ancho, alto (relación 3:4 o similar para ID)
-                doc.addImage(fotoData, 'JPEG', 4, 10, 20, 30); 
+                doc.addImage(fotoData, 'JPEG', 4, 10, 20, 30);
+            } else {
+                doc.setDrawColor(255,255,255);
+                doc.rect(4, 10, 20, 30); // Recuadro si falla la foto
             }
 
-            // DATOS PERSONALES (A la derecha, fondo blanco)
-            const startX = 35;
-            doc.setFontSize(7); doc.setTextColor(azulApa); doc.setFont(undefined, 'normal');
-            doc.text("NOMBRES / GIVEN NAMES:", startX, 10);
-            doc.setFontSize(10); doc.setTextColor(azulApa); doc.setFont(undefined, 'bold');
-            doc.text(nombre.toUpperCase(), startX, 14);
+            doc.setTextColor(...azulApa);
+            doc.setFontSize(7);
+            doc.text("NOMBRES / GIVEN NAMES:", 32, 12);
+            doc.setFont(undefined, 'bold').setFontSize(9).text(nombre.toUpperCase(), 32, 16);
+            
+            doc.setFont(undefined, 'normal').setFontSize(7).text("APELLIDOS / SURNAMES:", 32, 24);
+            doc.setFont(undefined, 'bold').setFontSize(9).text(apellido.toUpperCase(), 32, 28);
 
-            doc.setFontSize(7); doc.setTextColor(azulApa); doc.setFont(undefined, 'normal');
-            doc.text("APELLIDOS / SURNAMES:", startX, 22);
-            doc.setFontSize(10); doc.setTextColor(azulApa); doc.setFont(undefined, 'bold');
-            doc.text(apellido.toUpperCase(), startX, 26);
+            if(logoData) doc.addImage(logoData, 'PNG', 70, 5, 10, 10);
 
-            // LOGO EN ESQUINA (Co coherente con club afiliado)
-            if(logoData) {
-                doc.addImage(logoData, 'PNG', 72, 3, 10, 10); // x, y, ancho, alto
-            }
-
-            // DATOS SECUNDARIOS (Fila inferior, fondo blanco)
-            doc.setFontSize(6); doc.setTextColor('#666666'); doc.setFont(undefined, 'normal');
-            doc.text(`EXPEDICIÓN: ${expedicion}`, startX, 40);
-            doc.text(`EXPIRACIÓN: ${expiracion}`, startX, 45);
-
-            // Borde estético rojo inferior
+            doc.setFont(undefined, 'normal').setFontSize(6).setTextColor(100);
+            doc.text(`EXPEDICIÓN: ${expedicion}`, 32, 42);
+            doc.text(`EXPIRACIÓN: ${expiracion}`, 32, 46);
+            
             doc.setFillColor(...rojoApa);
             doc.rect(0, 52, 85.6, 2, 'F');
 
-
-            // ================= REVERSO (ATRÁS) =================
+            // --- REVERSO ---
             doc.addPage([85.6, 54], 'landscape');
-
-            // FONDO LIGERO
-            doc.setFillColor('#f8f9fa'); // Gris suizo muy claro
+            doc.setFillColor(248, 249, 250);
             doc.rect(0, 0, 85.6, 54, 'F');
 
-            // QR Y CÓDIGO (1/3 izquierdo)
-            const qrContainer = document.getElementById('qr-hidden');
-            qrContainer.innerHTML = "";
-            new QRCode(qrContainer, { text: id, width: 120, height: 120 });
+            const qrHidden = document.getElementById('qr-hidden');
+            qrHidden.innerHTML = "";
+            new QRCode(qrHidden, { text: id, width: 100, height: 100 });
+            
+            await new Promise(r => setTimeout(r, 300));
+            const qrCanvas = qrHidden.querySelector('canvas');
+            if(qrCanvas) doc.addImage(qrCanvas.toDataURL(), 'PNG', 8, 10, 22, 22);
+            
+            doc.setFontSize(7).setTextColor(...azulApa).text(`ID: ${id}`, 8, 38);
 
-            // Pequeño timeout para que QRCodejs termine de pintar el canvas
-            await new Promise(r => setTimeout(r, 200));
+            const disclaimerX = 35;
+            doc.setFontSize(5.5).setTextColor(50).setFont(undefined, 'normal');
+            const txtES = "Esta identificación es personal e intransferible. APA Zürich se reserva el derecho de retirarla por uso indebido.";
+            const txtEN = "This ID is personal and non-transferable. APA Zürich reserves the right to withdraw it for improper use.";
+            const txtDE = "Dieser Ausweis ist persönlich und nicht übertragbar. APA Zürich behält sich das Recht vor, ihn bei Missbrauch einzuziehen.";
 
-            const qrCanvas = qrContainer.querySelector('canvas');
-            if(qrCanvas) {
-                const qrData = qrCanvas.toDataURL("image/png");
-                doc.addImage(qrData, 'PNG', 5, 8, 26, 26);
-                doc.setFontSize(7); doc.setTextColor(azulApa); doc.setFont(undefined, 'bold');
-                doc.text(`ID: ${id}`, 5, 38);
-            }
+            doc.text(doc.splitTextToSize(txtES, 45), disclaimerX, 15);
+            doc.text(doc.splitTextToSize(txtEN, 45), disclaimerX, 28);
+            doc.text(doc.splitTextToSize(txtDE, 45), disclaimerX, 41);
 
-            // DISCLAIMER TRILINGÜE (2/3 derechos)
-            const disclaimerX = 38;
-            const disclaimerWidth = 45;
-            doc.setFontSize(5); doc.setTextColor('#333333'); doc.setFont(undefined, 'normal');
-
-            const txtES = "La siguiente identificación es personal e intransferible y su portador se compromete a hacer un uso adecuado de ella. APA Zürich se reserva el derecho de retirarla por uso indebido.";
-            const txtEN = "The following identification is personal and non-transferable. The holder agrees to make appropriate use of it. APA Zürich reserves the right to withdraw it for improper use.";
-            const txtDE = "Der folgende Ausweis ist persönlich und nicht übertragbar. Der Inhaber verpflichtet sich zu einer ordnungsgemäßen Verwendung. APA Zürich behält sich das Recht vor, ihn bei missbräuchlicher Verwendung einzuziehen.";
-
-            doc.text(doc.splitTextToSize(txtES, disclaimerWidth), disclaimerX, 10);
-            doc.text(doc.splitTextToSize(txtEN, disclaimerWidth), disclaimerX, 23);
-            doc.text(doc.splitTextToSize(txtDE, disclaimerWidth), disclaimerX, 36);
-
-            // Borde estético azul inferior
             doc.setFillColor(...azulApa);
             doc.rect(0, 52, 85.6, 2, 'F');
 
-            // DESCARGAR
-            doc.save(`ID_APA_Professional_${id}.pdf`);
+            doc.save(`ID_APA_${id}.pdf`);
         }
+
+        function modificar() { alert("Función Modificar"); }
+        function darBaja() { alert("Función Baja"); }
+        function renovar() { alert("Función Renovar"); }
+        function eliminar() { alert("Función Eliminar"); }
 
         window.onload = cargarDetalle;
     </script>
