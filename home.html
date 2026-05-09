@@ -11,7 +11,7 @@
     <div class="app-container">
         <div class="header">
             <span style="font-weight: bold; letter-spacing: 1px;">APA ZÜRICH</span>
-            <button onclick="logout()" style="width: auto; margin: 0; padding: 6px 12px; background: var(--rojo-apa); font-size: 0.75rem; border: none; color: white; border-radius: 5px;">SALIR</button>
+            <button onclick="logout()" style="width: auto; margin: 0; padding: 6px 12px; background: var(--rojo-apa); font-size: 0.75rem; border: none; color: white; border-radius: 5px; cursor: pointer;">SALIR</button>
         </div>
 
         <div class="welcome-section">
@@ -20,47 +20,29 @@
         </div>
 
         <div class="menu-grid">
-            <div class="menu-card" onclick="navegar('registro')">
-                <span>📝</span> Registro
-            </div>
-            <div class="menu-card" onclick="navegar('directorio')">
-                <span>📁</span> Directorio
-            </div>
-            <div class="menu-card" onclick="navegar('asistencia')">
-                <span>📅</span> Asistencia
-            </div>
-            <div class="menu-card" onclick="navegar('inventario')">
-                <span>📦</span> Inventario
-            </div>
-            <div class="menu-card" onclick="navegar('entregas')">
-                <span>🎁</span> Entregar Kit
-            </div>
+            <div class="menu-card" onclick="navegar('registro')"><span>📝</span> Registro</div>
+            <div class="menu-card" onclick="navegar('directorio')"><span>📁</span> Directorio</div>
+            <div class="menu-card" onclick="navegar('asistencia')"><span>📅</span> Asistencia</div>
+            <div class="menu-card" onclick="navegar('inventario')"><span>📦</span> Inventario</div>
+            <div class="menu-card" onclick="navegar('entregas')"><span>🎁</span> Entregar Kit</div>
             
-            <div id="admin-section" style="display: contents;">
-                <div class="menu-card admin-only" onclick="navegar('usuarios')">
-                    <span>👥</span> Usuarios
-                </div>
-                <div class="menu-card admin-only" onclick="navegar('reportes')">
-                    <span>📊</span> Reportes
-                </div>
-            </div>
+            <div class="menu-card admin-only" onclick="navegar('usuarios')" style="display: none;"><span>👥</span> Usuarios</div>
+            <div class="menu-card admin-only" onclick="navegar('reportes')" style="display: none;"><span>📊</span> Reportes</div>
         </div>
     </div>
 
-    <script src="js/app.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // Recuperamos el NOMBRE real guardado por auth.js
             const userName = sessionStorage.getItem('user_name') || "Usuario";
             const userRole = sessionStorage.getItem('user_role');
             
-            // Se inserta el nombre (ej. Kevin Troch) en el h1
+            // Mostrar el nombre real
             document.getElementById('user-welcome').innerText = userName;
 
-            // Lógica de visibilidad por Rol: Si NO es Admin, ocultamos la sección
-            if (userRole !== 'Admin') {
-                const adminCards = document.querySelectorAll('.admin-only');
-                adminCards.forEach(card => card.style.display = 'none');
+            // Mostrar opciones de Admin solo si el rol es exactamente 'Admin'
+            if (userRole === 'Admin') {
+                const adminOptions = document.querySelectorAll('.admin-only');
+                adminOptions.forEach(el => el.style.display = 'flex');
             }
         });
 
@@ -74,11 +56,10 @@
                 'usuarios': 'usuarios.html',
                 'reportes': 'reportes.html'
             };
-
             if (paginas[destino]) {
                 window.location.href = paginas[destino];
             } else {
-                alert("Módulo " + destino + " en desarrollo.");
+                alert("Módulo en desarrollo.");
             }
         }
 
