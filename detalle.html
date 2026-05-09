@@ -178,27 +178,34 @@
 
         // 1. Función clave: Corrección de Rotación de Imagen
         async function procesarImagen(imgElement) {
-            if (!imgElement || !imgElement.src || imgElement.src.includes('via.placeholder')) {
-                console.warn("Usando imagen por defecto o vacía");
-                return null; 
+            // Si no hay elemento o la URL es inválida/vacía
+            if (!imgElement || !imgElement.src || imgElement.src === "" || imgElement.src.includes(window.location.host)) {
+                console.warn("URL de imagen no válida o vacía.");
+                return null;
             }
 
             return new Promise((resolve) => {
                 const img = new Image();
+                // Intentar evitar errores de CORS
                 img.crossOrigin = "Anonymous"; 
                 
                 img.onload = function() {
-                    const canvas = document.createElement('canvas');
-                    canvas.width = img.naturalWidth;
-                    canvas.height = img.naturalHeight;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0);
-                    resolve(canvas.toDataURL("image/jpeg", 0.9));
+                    try {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = img.naturalWidth;
+                        canvas.height = img.naturalHeight;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0);
+                        resolve(canvas.toDataURL("image/jpeg", 0.9));
+                    } catch (err) {
+                        console.error("Error al procesar canvas (posible CORS):", err);
+                        resolve(null); // Si falla el canvas, devolvemos null
+                    }
                 };
 
                 img.onerror = function() {
-                    console.error("No se pudo cargar la imagen desde la URL:", imgElement.src);
-                    resolve(null); // Si falla, devolvemos null para que el PDF siga generándose sin foto
+                    console.error("Error de carga en Image object:", imgElement.src);
+                    resolve(null);
                 };
 
                 img.src = imgElement.src;
@@ -209,19 +216,23 @@
         async function cargarLogoAPA() {
             return new Promise((resolve) => {
                 const img = new Image();
-                // Cambia 'logo.png' por la ruta real de tu archivo de logo
+                // Asegúrate de que el nombre del archivo sea exactamente igual (mayúsculas/minúsculas)
                 img.src = 'logo.png'; 
                 
                 img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    canvas.width = img.width;
-                    canvas.height = img.height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0);
-                    resolve(canvas.toDataURL("image/png"));
+                    try {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = img.width;
+                        canvas.height = img.height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0);
+                        resolve(canvas.toDataURL("image/png"));
+                    } catch (e) {
+                        resolve(null);
+                    }
                 };
                 img.onerror = () => {
-                    console.warn("Logo no encontrado en la ruta especificada");
+                    console.warn("No se pudo cargar el logo desde logo.png");
                     resolve(null);
                 };
             });
@@ -240,17 +251,26 @@
 
         async function generarPDFElegante() {
             const { jsPDF } = window.jspdf;
-            // ID-1: 85.6mm x 53.98mm
             const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: [85.6, 54] });
             
-            // Recuperar datos de la interfaz
-            const id = document.getElementById('val-id').innerText;
-            const nombre = document.getElementById('val-nombre').innerText;
-            const apellido = document.getElementById('val-apellido').innerText;
+            // Obtener elementos
+            const elId = document.getElementById('val-id');
+            const elNombre = document.getElementById('val-nombre');
+            const elApellido = document.getElementById('val-apellido');
+
+            // Validación de seguridad: Si no han cargado los datos, no continuar
+            if (!elId || elId.innerText === "---") {
+                alert("Los datos del miembro aún no han cargado. Por favor espera un segundo.");
+                return;
+            }
+
+            const id = elId.innerText;
+            const nombre = elNombre.innerText;
+            const apellido = elApellido.innerText;
             const expedicion = document.getElementById('val-expedicion').innerText;
             const expiracion = document.getElementById('val-expiracion').innerText;
             
-            // CARGA DE ACTIVOS (Foto corregida y Logo)
+            // CARGA DE IMÁGENES
             const fotoData = await procesarImagen(document.getElementById('p-foto'));
             const logoData = await cargarLogoAPA();
 
