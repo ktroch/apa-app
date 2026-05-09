@@ -173,8 +173,6 @@
             }
         }
 
-        // --- LÓGICA DE IMÁGENES CORREGIDA ---
-
         function obtenerImagenBase64(url) {
             return new Promise((resolve) => {
                 const img = new Image();
@@ -198,7 +196,7 @@
                     await generarPDFElegante();
                 } catch (e) {
                     console.error(e);
-                    alert("Error en la generación. Verifica la consola.");
+                    alert("Error en la generación.");
                 }
             }
         }
@@ -214,28 +212,35 @@
             const expiracion = document.getElementById('val-expiracion').innerText;
             const fotoUrl = document.getElementById('p-foto').src;
 
-            // Colores
             const azulApa = [26, 58, 99];
             const rojoApa = [200, 16, 46];
 
-            // 1. Procesar Fotos y Logo
             const fotoData = await obtenerImagenBase64(fotoUrl);
             const logoData = await obtenerImagenBase64('logo.png');
 
             // --- ANVERSO ---
-            doc.setFillColor(...azulApa);
-            doc.rect(0, 0, 28, 54, 'F'); // Franja lateral
+            // 1. Rectángulo con degradado (Simulado mediante líneas o rectángulos pequeños)
+            for (let i = 0; i <= 28; i++) {
+                let r = azulApa[0] + (255 - azulApa[0]) * (i / 28);
+                let g = azulApa[1] + (255 - azulApa[1]) * (i / 28);
+                let b = azulApa[2] + (255 - azulApa[2]) * (i / 28);
+                doc.setDrawColor(r, g, b);
+                doc.line(i, 0, i, 54);
+            }
             
+            // 2. Foto con bordes redondeados (Máscara)
             if(fotoData) {
+                doc.saveGraphicsState();
+                doc.roundedRect(4, 10, 20, 30, 3, 3, 'S'); // Borde redondeado sutil
+                doc.clip();
                 doc.addImage(fotoData, 'JPEG', 4, 10, 20, 30);
-            } else {
-                doc.setDrawColor(255,255,255);
-                doc.rect(4, 10, 20, 30); // Recuadro si falla la foto
+                doc.restoreGraphicsState();
             }
 
+            // 3. Textos
             doc.setTextColor(...azulApa);
             doc.setFontSize(7);
-            doc.text("NOMBRES / GIVEN NAMES:", 32, 12);
+            doc.text("NOMBRES / NAMES:", 32, 12);
             doc.setFont(undefined, 'bold').setFontSize(9).text(nombre.toUpperCase(), 32, 16);
             
             doc.setFont(undefined, 'normal').setFontSize(7).text("APELLIDOS / SURNAMES:", 32, 24);
@@ -259,21 +264,28 @@
             qrHidden.innerHTML = "";
             new QRCode(qrHidden, { text: id, width: 100, height: 100 });
             
-            await new Promise(r => setTimeout(r, 300));
+            await new Promise(r => setTimeout(r, 400));
             const qrCanvas = qrHidden.querySelector('canvas');
-            if(qrCanvas) doc.addImage(qrCanvas.toDataURL(), 'PNG', 8, 10, 22, 22);
-            
-            doc.setFontSize(7).setTextColor(...azulApa).text(`ID: ${id}`, 8, 38);
+            if(qrCanvas) {
+                const qrData = qrCanvas.toDataURL();
+                doc.addImage(qrData, 'PNG', 6, 10, 24, 24);
+                // Código ID alineado debajo del QR
+                doc.setFontSize(7).setTextColor(...azulApa).setFont(undefined, 'bold');
+                // Centramos el texto respecto al ancho del QR (24mm)
+                const textWidth = doc.getTextWidth(id);
+                const xPos = 6 + (24 - textWidth) / 2;
+                doc.text(id, xPos, 38);
+            }
 
-            const disclaimerX = 35;
+            const disclaimerX = 36;
             doc.setFontSize(5.5).setTextColor(50).setFont(undefined, 'normal');
             const txtES = "Esta identificación es personal e intransferible. APA Zürich se reserva el derecho de retirarla por uso indebido.";
             const txtEN = "This ID is personal and non-transferable. APA Zürich reserves the right to withdraw it for improper use.";
             const txtDE = "Dieser Ausweis ist persönlich und nicht übertragbar. APA Zürich behält sich das Recht vor, ihn bei Missbrauch einzuziehen.";
 
-            doc.text(doc.splitTextToSize(txtES, 45), disclaimerX, 15);
-            doc.text(doc.splitTextToSize(txtEN, 45), disclaimerX, 28);
-            doc.text(doc.splitTextToSize(txtDE, 45), disclaimerX, 41);
+            doc.text(doc.splitTextToSize(txtES, 44), disclaimerX, 15);
+            doc.text(doc.splitTextToSize(txtEN, 44), disclaimerX, 28);
+            doc.text(doc.splitTextToSize(txtDE, 44), disclaimerX, 41);
 
             doc.setFillColor(...azulApa);
             doc.rect(0, 52, 85.6, 2, 'F');
