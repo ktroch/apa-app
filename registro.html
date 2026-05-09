@@ -7,7 +7,35 @@
     <link rel="stylesheet" href="css/style.css">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        .form-body { padding: 15px; display: flex; flex-direction: column; gap: 12px; padding-bottom: 30px; }
+        .header-detalle {
+            background: var(--azul-apa);
+            color: white;
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between; /* Separa los elementos */
+            height: 50px;
+        }
+        .back-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 2.5rem;
+            cursor: pointer;
+            padding: 0;
+            line-height: 1;
+            width: 40px;
+            text-align: left;
+        }
+        .title-center {
+            flex-grow: 1;
+            text-align: center;
+            margin: 0;
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-right: 40px; /* Compensa el ancho del botón back para centrar */
+        }
+        .form-body { padding: 15px; display: flex; flex-direction: column; gap: 12px; padding-bottom: 40px; }
         .photo-box { 
             width: 100%; height: 180px; border: 2px dashed var(--azul-apa); 
             border-radius: 10px; display: flex; justify-content: center; 
@@ -16,20 +44,8 @@
         .photo-box img { width: 100%; height: 100%; object-fit: cover; }
         label { display: block; margin-top: 5px; font-weight: bold; color: var(--azul-apa); font-size: 0.9rem; }
         input, select { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
-        .btn-primario { background: var(--azul-apa); color: white; border: none; padding: 15px; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 1rem; }
-        .btn-cancelar { background: #666; color: white; border: none; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 5px; font-size: 0.9rem; }
-        .btn-primario:disabled { background: #ccc; }
-        
-        /* Ajuste para el header con flecha */
-        .header-detalle {
-            background: var(--azul-apa); color: white; padding: 15px;
-            display: flex; align-items: center; position: relative; height: 40px;
-        }
-        .back-btn {
-            position: absolute; left: 10px; background: none; border: none;
-            color: white; font-size: 2.2rem; cursor: pointer; line-height: 1;
-        }
-        .title-center { width: 100%; text-align: center; margin: 0; font-size: 1.1rem; letter-spacing: 1px; }
+        .btn-primario { background: var(--azul-apa); color: white; border: none; padding: 16px; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 1rem; }
+        .btn-cancelar { background: #e0e0e0; color: #444; border: none; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 5px; }
     </style>
 </head>
 <body>
@@ -42,48 +58,33 @@
     <div class="form-body">
         <div class="photo-box" onclick="document.getElementById('input-foto').click()">
             <img id="preview-foto" src="" style="display:none;">
-            <span id="txt-foto">Click para (re)tomar foto</span>
+            <span id="txt-foto">Click para foto</span>
         </div>
         <input type="file" id="input-foto" accept="image/*" capture="environment" style="display:none;" onchange="procesarFoto(event)">
 
         <label>Nombre</label>
-        <input type="text" id="nombre" placeholder="Ej: Juan">
-
+        <input type="text" id="nombre">
         <label>Apellido</label>
-        <input type="text" id="apellido" placeholder="Ej: Pérez">
-
+        <input type="text" id="apellido">
         <label>Rol / Categoría</label>
         <select id="rol">
             <option value="Socio">Socio</option>
             <option value="Directivo">Directivo</option>
             <option value="Colaborador">Colaborador</option>
         </select>
-
         <label>Teléfono</label>
-        <input type="tel" id="telefono" placeholder="+41 00 000 00 00">
-
+        <input type="tel" id="telefono">
         <label>Email</label>
-        <input type="email" id="email" placeholder="correo@ejemplo.com">
-
+        <input type="email" id="email">
         <label>Dirección</label>
-        <input type="text" id="direccion" placeholder="Calle, Número, Ciudad">
-
-        <label>Tipo de Documento</label>
-        <select id="tipo_doc">
-            <option value="ID">ID Card / Cédula</option>
-            <option value="Pasaporte">Pasaporte</option>
-            <option value="Permiso">Permiso de Residencia</option>
-        </select>
-
-        <label>Número de Documento</label>
-        <input type="text" id="num_doc" placeholder="Número identificador">
-
+        <input type="text" id="direccion">
+        
         <button class="btn-primario" id="btn-guardar" onclick="guardarDatos()">GUARDAR</button>
         <button class="btn-cancelar" onclick="cancelar()">CANCELAR</button>
     </div>
 
     <script>
-        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzT6TOfCsUIddAEizXKKrACH1iUcrWt26TYF-yNLiDiJ6YSnuHdqdHy9AKei011FIFbeg/exec';
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyEw0xiPaC8TXJISDX_ogiPRCjwVvumqNVQJEUG13Vt6Okr84WhZ2WEqiKDmLdfxw6mag/exec';
         let photoBase64 = "";
         let esEdicion = false;
         let idMiembroEdicion = "";
@@ -91,7 +92,6 @@
         window.onload = async function() {
             idMiembroEdicion = localStorage.getItem('selectedMemberId');
             const modo = localStorage.getItem('formMode');
-
             if (modo === 'edit' && idMiembroEdicion) {
                 esEdicion = true;
                 document.getElementById('form-title').innerText = "MODIFICAR";
@@ -105,7 +105,6 @@
                 const res = await fetch(`${WEB_APP_URL}?action=obtenerMiembros`);
                 const miembros = await res.json();
                 const m = miembros.find(item => item.id === id);
-
                 if (m) {
                     document.getElementById('nombre').value = m.nombre;
                     document.getElementById('apellido').value = m.apellido;
@@ -113,18 +112,14 @@
                     document.getElementById('telefono').value = m.telefono;
                     document.getElementById('email').value = m.email || "";
                     document.getElementById('direccion').value = m.direccion || "";
-                    document.getElementById('tipo_doc').value = m.tipo_doc || "ID";
-                    document.getElementById('num_doc').value = m.num_doc || "";
-                    
                     if (m.foto) {
                         const img = document.getElementById('preview-foto');
-                        img.src = m.foto;
-                        img.style.display = "block";
+                        img.src = m.foto; img.style.display = "block";
                         document.getElementById('txt-foto').style.display = "none";
                         photoBase64 = m.foto;
                     }
                 }
-            } catch (e) { console.error("Error precargando", e); }
+            } catch (e) { console.error(e); }
         }
 
         function cancelar() {
@@ -135,10 +130,9 @@
         function procesarFoto(event) {
             const file = event.target.files[0];
             const reader = new FileReader();
-            reader.onload = function(e) {
-                const img = document.getElementById('preview-foto');
-                img.src = e.target.result;
-                img.style.display = "block";
+            reader.onload = (e) => {
+                document.getElementById('preview-foto').src = e.target.result;
+                document.getElementById('preview-foto').style.display = "block";
                 document.getElementById('txt-foto').style.display = "none";
                 photoBase64 = e.target.result;
             };
@@ -147,44 +141,27 @@
 
         async function guardarDatos() {
             const btn = document.getElementById('btn-guardar');
-            const nombre = document.getElementById('nombre').value;
-            const apellido = document.getElementById('apellido').value;
-
-            if (!nombre || !apellido) {
-                alert("Nombre y Apellido son obligatorios");
-                return;
-            }
-
             btn.disabled = true;
             btn.innerText = "PROCESANDO...";
 
             const datos = {
                 action: esEdicion ? "modificarPersona" : "registrarPersona",
-                id: esEdicion ? idMiembroEdicion : null,
-                nombre: nombre,
-                apellido: apellido,
+                id: idMiembroEdicion,
+                nombre: document.getElementById('nombre').value,
+                apellido: document.getElementById('apellido').value,
                 rol: document.getElementById('rol').value,
                 telefono: document.getElementById('telefono').value,
                 email: document.getElementById('email').value,
                 direccion: document.getElementById('direccion').value,
-                tipo_doc: document.getElementById('tipo_doc').value,
-                num_doc: document.getElementById('num_doc').value,
                 foto: photoBase64
             };
 
             try {
-                await fetch(WEB_APP_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    body: JSON.stringify(datos)
-                });
-
-                alert(esEdicion ? "¡Actualización exitosa!" : "¡Registro exitoso!");
-                localStorage.removeItem('formMode');
-                window.location.href = 'directorio.html';
-            } catch (error) {
-                console.error("Error:", error);
-                alert("Hubo un error. Reintenta.");
+                await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(datos) });
+                alert("Operación exitosa");
+                cancelar();
+            } catch (e) {
+                alert("Error al guardar");
                 btn.disabled = false;
                 btn.innerText = "GUARDAR";
             }

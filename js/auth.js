@@ -1,4 +1,4 @@
-const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzT6TOfCsUIddAEizXKKrACH1iUcrWt26TYF-yNLiDiJ6YSnuHdqdHy9AKei011FIFbeg/exec'; 
+const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyEw0xiPaC8TXJISDX_ogiPRCjwVvumqNVQJEUG13Vt6Okr84WhZ2WEqiKDmLdfxw6mag/exec'; 
 
 async function intentarLogin() {
     const user = document.getElementById('user').value;
@@ -17,15 +17,14 @@ async function intentarLogin() {
     errorMsg.style.display = 'none';
 
     try {
-        // Consultamos al script mediante GET para obtener una respuesta JSON directa y evitar líos de CORS en el login
         const urlConsulta = `${WEB_APP_URL}?action=login&user=${encodeURIComponent(user)}&pass=${encodeURIComponent(pass)}`;
         const res = await fetch(urlConsulta);
         const data = await res.json();
 
         if (data.status === "success") {
-            // IMPORTANTE: Guardamos con las mismas llaves que usa home.html
-            sessionStorage.setItem('user_role', data.role); // Usamos 'role' como viene del script
-            sessionStorage.setItem('user_name', user); // Usamos el ID de usuario como nombre temporal o puedes ajustar el script para enviar el nombre real
+            // Guardamos el NOMBRE real y el ROL exacto
+            sessionStorage.setItem('user_role', data.role); 
+            sessionStorage.setItem('user_name', data.nombre); 
             
             if (document.getElementById('remember').checked) {
                 localStorage.setItem('apa_session', JSON.stringify(data));
@@ -33,6 +32,7 @@ async function intentarLogin() {
 
             window.location.href = 'home.html'; 
         } else {
+            errorMsg.innerText = "Usuario o contraseña incorrectos";
             errorMsg.style.display = 'block';
             loginBtn.disabled = false;
             loginBtn.innerText = "Entrar";
