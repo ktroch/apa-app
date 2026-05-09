@@ -110,7 +110,7 @@
     <div id="qr-hidden"></div>
 
     <script>
-        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyRAEbz2KMc6lvUX-SX085Autf4OGwRBjP-gVgVSxgGZvL9nn1x3zj0FJxD-iNX-XZyIw/exec'; 
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzT6TOfCsUIddAEizXKKrACH1iUcrWt26TYF-yNLiDiJ6YSnuHdqdHy9AKei011FIFbeg/exec'; 
 
         async function cargarDetalle() {
             const idSeleccionado = localStorage.getItem('selectedMemberId');
@@ -293,7 +293,10 @@
             doc.save(`ID_APA_${id}.pdf`);
         }
 
-        function modificar() { alert("Función Modificar"); }
+        function modificar() {
+            localStorage.setItem('formMode', 'edit'); // Activamos modo edición
+            window.location.href = 'registro.html';
+        }
         function darBaja() { alert("Función Baja"); }
         function renovar() { alert("Función Renovar"); }
         function eliminar() { alert("Función Eliminar"); }
